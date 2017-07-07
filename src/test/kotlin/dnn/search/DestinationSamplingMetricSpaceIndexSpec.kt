@@ -15,7 +15,7 @@ class DestinationSamplingMetricSpaceIndexSpec : FreeSpec() {
             data class Coord(val x: Double, val y: Double)
             fun distance(a: Coord, b: Coord) = Math.sqrt((a.x - b.x).sqr + (a.y - b.y).sqr)
             "on creating MSI" - {
-                val freenetMSI = DestinationSamplingMetricSpaceIndex<Coord>({ (a, b) -> distance(a, b) })
+                val freenetMSI = DestinationSamplingMetricSpaceIndex<Coord, Double>({ (a, b) -> distance(a, b) })
                 freenetMSI.add(Coord(1.0, 2.0))
                 "should be the only one retrieved in a search" {
                     val results = freenetMSI.searchFor(Coord(1.0, 2.0)).toList()

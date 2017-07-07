@@ -7,17 +7,18 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Created by ian on 7/4/17.
  */
-class ExhaustiveMSI<IT : Any>(distanceFunction: (Two<IT>) -> Double) : MetricSpaceIndex<IT>(distanceFunction) {
+class ExhaustiveMSI<ItemType : Any, DistanceType : Comparable<DistanceType>>(distanceFunction: (Two<ItemType>) -> DistanceType)
+    : MetricSpaceIndex<ItemType, DistanceType>(distanceFunction) {
     private val nextIndex = AtomicInteger(0)
 
-    override fun add(item: IT) {
+    override fun add(item: ItemType) {
         val index = nextIndex.getAndIncrement()
         items[index] = item
     }
 
-    private val items = ConcurrentHashMap<Int, IT>()
+    private val items = ConcurrentHashMap<Int, ItemType>()
 
-    override fun searchFor(item : IT): Sequence<Result<IT>> {
+    override fun searchFor(item : ItemType): Sequence<dnn.search.MetricSpaceIndex.Result<ItemType, DistanceType>> {
         return items.entries.map { distanceFunction(Two(it.value, item)) to it}
                 .sortedBy { it.first }
                 .asSequence()
@@ -27,12 +28,12 @@ class ExhaustiveMSI<IT : Any>(distanceFunction: (Two<IT>) -> Double) : MetricSpa
                 }
     }
 
-    class Result<out IT : Any>(
-            override val item: IT,
-            override val distance: Double,
-            private val parent : ExhaustiveMSI<IT>,
+    class Result<out ItemType : Any, DistanceType : Comparable<DistanceType>>(
+            override val item: ItemType,
+            override val distance: DistanceType,
+            private val parent : ExhaustiveMSI<ItemType, DistanceType>,
             private val index : Int
-    ) : MetricSpaceIndex.Result<IT> {
+    ) : MetricSpaceIndex.Result<ItemType, DistanceType> {
         override fun remove() {
             parent.items[index]
         }
