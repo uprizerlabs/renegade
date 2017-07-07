@@ -2,19 +2,27 @@ package dnn.search.destinationSampling
 
 import dnn.search.MetricSpaceIndex
 import dnn.util.Two
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.experimental.buildSequence
 
 /**
- * An efficient algorithm for searching a
- * [generalized hypermetric space](https://en.wikipedia.org/wiki/Metric_space#Generalizations_of_metric_spaces).  Uses
- * [destination sampling](https://arxiv.org/pdf/math/0702325.pdf) which is based on an
- * [old idea of mine](https://freenetproject.org/papers/ddisrs.pdf)
+ * An efficient heuristic algorithm for searching a
+ * [generalized hypermetric space](https://en.wikipedia.org/wiki/Metric_space#Generalizations_of_metric_spaces) for
+ * items that are closest to a sought item.  Closeness is defined by a distance function supplied by
+ * the user of this class.
+ *
+ * The items are represented as a directed graph, with edges determined through
+ * [destination sampling](https://arxiv.org/pdf/math/0702325.pdf) (based on
+ * [Freenet-style routing](https://freenetproject.org/papers/ddisrs.pdf)).  Destination
+ * sampling should ensure that the graph maintains the [small world](https://en.wikipedia.org/wiki/Small-world_network)
+ * property, which should facilitate fast search.
+ *
+ * Search is performed through greedy best-first with backtracking.  It is not guaranteed to find the closest element,
+ * but it should in most cases.  The search returns a lazy [Sequence] of item results, which will get steadily
+ * further away from the sought item, each subsequent item should be the closest to the item sought that hasn't
+ * already been returned (but this is not guaranteed).
  *
  * @author [Ian Clarke](http://blog.locut.us/))
  */
-
-private val uidGenerator = AtomicLong(0)
 
 class DestinationSamplingMetricSpaceIndex<ItemType : Any, DistanceType : Comparable<DistanceType>>(
         distanceFunction: (Two<ItemType>) -> DistanceType,
