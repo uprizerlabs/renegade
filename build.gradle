@@ -37,6 +37,7 @@ dependencies {
     compile 'com.github.sanity:pairAdjacentViolators:1.4.4'
     compile 'io.github.microutils:kotlin-logging:1.4.5'
     compile group: 'com.google.guava', name: 'guava', version: '22.0'
+    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
 
     testCompile 'io.kotlintest:kotlintest:2.0.3'
     testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'

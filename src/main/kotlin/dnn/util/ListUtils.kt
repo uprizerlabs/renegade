@@ -8,7 +8,7 @@ import kotlin.coroutines.experimental.buildSequence
  * Created by ian on 7/3/17.
  */
 
-val <A> List<A>.randomDistinctPairs : Sequence<Two<A>> get() {
+val <A> List<A>.sampleDistinctPairs: Sequence<Two<A>> get() {
     val list = this
     require(this is RandomAccess)
     require(this.size < Math.sqrt(Long.MAX_VALUE.toDouble()))
@@ -19,18 +19,11 @@ val <A> List<A>.randomDistinctPairs : Sequence<Two<A>> get() {
             // https://www.tikalk.com/xincrol-unique-and-random-number-generation-algorithm/
             // But that would be the definition of premature optimization
             val r = ThreadLocalRandom.current().nextLong(listSize.sqr)
-            val first = (r % listSize).toInt()
+            val first = (r / listSize).toInt()
             val second = (r.rem(listSize)).toInt()
             if (first != second) {
                 yield(Two(list[first], list[second]))
             }
         }
-    }
-}
-
-private val random = Random()
-fun <T> ArrayList<T>.getRandom() : T? {
-    return if (this.isEmpty()) null else {
-        this[random.nextInt(this.size)]
     }
 }

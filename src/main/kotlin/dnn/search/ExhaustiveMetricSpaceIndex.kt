@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Created by ian on 7/4/17.
  */
-class ExhaustiveMSI<ItemType : Any, DistanceType : Comparable<DistanceType>>(distanceFunction: (Two<ItemType>) -> DistanceType)
+class ExhaustiveMetricSpaceIndex<ItemType : Any, DistanceType : Comparable<DistanceType>>(distanceFunction: (Two<ItemType>) -> DistanceType)
     : MetricSpaceIndex<ItemType, DistanceType>(distanceFunction) {
     private val nextIndex = AtomicInteger(0)
 
@@ -31,7 +31,7 @@ class ExhaustiveMSI<ItemType : Any, DistanceType : Comparable<DistanceType>>(dis
     class Result<out ItemType : Any, DistanceType : Comparable<DistanceType>>(
             override val item: ItemType,
             override val distance: DistanceType,
-            private val parent : ExhaustiveMSI<ItemType, DistanceType>,
+            private val parent : ExhaustiveMetricSpaceIndex<ItemType, DistanceType>,
             private val index : Int
     ) : MetricSpaceIndex.Result<ItemType, DistanceType> {
         override fun remove() {
