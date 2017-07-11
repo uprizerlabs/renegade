@@ -35,7 +35,7 @@ class RandomAccessSet<V> {
     fun random(filter: (V) -> Boolean = { true }): V? =
             synchronized(arrayList) {
                 for (attempts in 0..5) {
-                    val candidate = arrayList.get(random.nextInt(arrayList.size))
+                    val candidate = arrayList[random.nextInt(arrayList.size)]
                     if (filter(candidate)) return candidate
                 }
                 return arrayList.firstOrNull(filter)

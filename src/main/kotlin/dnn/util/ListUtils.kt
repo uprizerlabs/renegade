@@ -27,3 +27,9 @@ val <A> List<A>.sampleDistinctPairs: Sequence<Two<A>> get() {
         }
     }
 }
+
+fun <A> List<A>.replace( at: Int, with : A) : List<A> {
+    val mList = ArrayList(this)
+    mList[at] = with
+    return mList
+}

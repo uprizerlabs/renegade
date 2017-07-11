@@ -11,7 +11,7 @@ import io.kotlintest.specs.FreeSpec
 class DestinationSamplingMetricSpaceIndexSpec : FreeSpec() {
     init {
 
-        "A DestinationSamplingMetricSpaceIndex initialized with a 2D Euclidean distance metric" - {
+        "A DestinationSamplingMetricSpaceIndex initialized with a 2D Euclidean dist metric" - {
             data class Coord(val x: Double, val y: Double)
             fun distance(a: Coord, b: Coord) = Math.sqrt((a.x - b.x).sqr + (a.y - b.y).sqr)
             "on creating MSI" - {

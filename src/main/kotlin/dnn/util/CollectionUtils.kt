@@ -1,7 +1,7 @@
 package dnn.util
 
 /**
- * Created by ian on 7/3/17.
+ * Represents a set of two values (which may be identical)
  */
 
 class Two<out V>(a : V, b : V) {
