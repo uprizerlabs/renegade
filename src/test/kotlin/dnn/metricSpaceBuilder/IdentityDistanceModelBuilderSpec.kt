@@ -18,12 +18,15 @@ class IdentityDistanceModelBuilderSpec : FreeSpec() {
                     val inputs = Two(random.nextInt(3), random.nextInt(3))
                     sampleData += InputDistance(inputs, if (Math.abs(inputs.first - inputs.second) < 2) 0.0 else 1.0)
                 }
-                "build a distance model with scaled output distances" - {
-                    var distanceModel = dmb.build(sampleData, 0.3)
+                "build a distance model" - {
+                    var distanceModel = dmb.build(sampleData)
                     "verify output distance estimates" {
                         distanceModel.invoke(Two(0, 1)) shouldBe (0.0.plusOrMinus(0.01))
                         distanceModel.invoke(Two(1, 2)) shouldBe (0.0.plusOrMinus(0.01))
-                        distanceModel.invoke(Two(0, 2)) shouldBe (0.3.plusOrMinus(0.01))
+                        distanceModel.invoke(Two(0, 2)) shouldBe (1.0.plusOrMinus(0.01))
+                    }
+                    "verify average default for unseen inputs" {
+                        distanceModel.invoke(Two(9, 9)) shouldBe ((0.2).plusOrMinus(0.05))
                     }
                 }
             }

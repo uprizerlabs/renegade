@@ -13,14 +13,11 @@ class MetricSpaceBuilder<InputType : Any, OutputType : Any>(
         val distanceModelBuilders: DistanceModelBuilders<InputType>,
         val trainingData: List<Pair<InputType, OutputType>>,
         val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
-        val outputDistance: (OutputType, OutputType) -> Double
-) : (Two<InputType>) -> Double {
+        val outputDistance: (OutputType, OutputType) -> Double) {
 
     private val logger = KotlinLogging.logger {}
 
-    override fun invoke(twoInputs: Two<InputType>) = estimateDistance(twoInputs)
-
-    private fun estimateDistance(twoInputs: Two<InputType>): Double
+    fun estimateDistance(twoInputs: Two<InputType>): Double
             = this.distanceModels.estimateDistance(twoInputs)
 
     val distanceModels: DistanceModels<InputType> = buildRelevanceModels()

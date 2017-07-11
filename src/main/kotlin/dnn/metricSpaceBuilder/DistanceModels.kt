@@ -39,7 +39,9 @@ class DistanceModels<InputType : Any>(
             : InputDistances<InputType> {
         val otherModels = excludeModel(modelToExcludeIx)
         val estimatesWithoutThisModel = inputDistances
-                .map { (inputs, distance) -> InputDistance(inputs, distance - otherModels.estimateDistance(inputs)) }
+                .map { (inputs, distance) ->
+                    InputDistance(inputs, distance - otherModels.estimateDistance(inputs))
+                }
         return estimatesWithoutThisModel
     }
 
