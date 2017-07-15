@@ -1,7 +1,6 @@
 package dnn.metricSpaceBuilder
 
 import dnn.util.*
-import dnn.util.TaskResult.ResultWithDescription
 import mu.KotlinLogging
 
 /**
@@ -15,7 +14,7 @@ internal class DistancePairSampler<out InputType : Any, OutputType : Any>(
 
     fun sample(maxSamples: Int)
             : InputDistances<InputType> {
-        val samples = logger.infoTask("Sampling up to $maxSamples from ${trainingData.size} training pairs") {
+        logger.info("Sampling up to $maxSamples from ${trainingData.size} training pairs")
             val randomAccessTrainingSet: List<Pair<InputType, OutputType>> =
                     if (trainingData is RandomAccess) trainingData else {
                         logger.info("trainingData is not in RandomAccess list, converting to ArrayList")
@@ -30,8 +29,6 @@ internal class DistancePairSampler<out InputType : Any, OutputType : Any>(
                                 outputDistance(it.first.second, it.second.second)
                         )
                     }.toList()
-            ResultWithDescription(samples, "${samples.size} samples")
-        }
         return samples
     }
 }

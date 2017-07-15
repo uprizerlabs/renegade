@@ -1,6 +1,6 @@
 package dnn.metricSpaceBuilder
 
-import dnn.relevanceModelBuilders.IdentityDistanceModelBuilder
+import dnn.distanceModelBuilder.inputTypes.IdentityDistanceModelBuilder
 import dnn.util.*
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec

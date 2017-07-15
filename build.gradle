@@ -40,8 +40,10 @@ dependencies {
     compile 'io.github.microutils:kotlin-logging:1.4.5'
     compile group: 'com.google.guava', name: 'guava', version: '22.0'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.1'
+
     testCompile 'io.kotlintest:kotlintest:2.0.3'
-    testCompile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
     // testCompile 'org.jetbrains.spek:spek-api:1.1.2'
     // testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.2'
