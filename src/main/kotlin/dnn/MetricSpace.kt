@@ -2,7 +2,6 @@ package dnn
 
 import com.google.common.collect.Iterables
 import dnn.distanceModelBuilder.*
-import dnn.metricSpaceBuilder.DistancePairSampler
 import dnn.util.*
 import mu.KotlinLogging
 

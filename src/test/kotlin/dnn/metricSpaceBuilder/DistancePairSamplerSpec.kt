@@ -1,6 +1,6 @@
 package dnn.metricSpaceBuilder
 
-import dnn.approx
+import dnn.*
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec
 
@@ -13,7 +13,8 @@ class DistancePairSamplerSpec : FreeSpec() {
             val trainingData: List<Pair<Double, Boolean>> = (0..100).map { it.toDouble() }.map { it to (it > 50) }
             "given a DistancePairSampler appropriate to this training set" - {
                 val sampler = DistancePairSampler(trainingData) {
-                    a, b -> if (a == b) 0.0 else 1.0
+                    a, b ->
+                    if (a == b) 0.0 else 1.0
                 }
                 "generate 1000 relevancePairs" - {
                     val relevancePairs: InputDistances<Double> = sampler.sample(1000)
