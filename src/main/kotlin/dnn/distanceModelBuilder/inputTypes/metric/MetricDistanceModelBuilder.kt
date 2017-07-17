@@ -6,7 +6,7 @@ import dnn.distanceModelBuilder.*
 import dnn.metricSpaceBuilder.InputDistances
 import dnn.util.Two
 
-open class MetricDistanceModelBuilder<in InputType : Any>(override val label : String? = null, private val distanceFunction: (Two<InputType>) -> Double) : DistanceModelBuilder<InputType>(label) {
+open class MetricDistanceModelBuilder<InputType : Any>(override val label : String? = null, private val distanceFunction: (Two<InputType>) -> Double) : DistanceModelBuilder<InputType>(label) {
     override fun build(inputDistances: InputDistances<InputType>): DistanceModel<InputType> {
         val points = inputDistances.map {
             Point(distanceFunction(it.inputs), it.dist)
