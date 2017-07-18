@@ -1,7 +1,6 @@
-package dnn.distanceModelBuilder
+package dnn.distanceModelBuilder.inputTypes.metric
 
-import dnn.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
-import dnn.metricSpaceBuilder.InputDistance
+import dnn.distanceModelBuilder.InputDistance
 import dnn.util.*
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
@@ -17,7 +16,7 @@ class DoubleDistanceModelBuilderSpec : FreeSpec() {
                 val sampleData = ArrayList<InputDistance<Double>>()
                 for (ix in 0..1000) {
                     val inputs = Two(random.nextInt(10).toDouble(), random.nextInt(3).toDouble())
-                    sampleData += InputDistance(inputs, Math.abs(inputs.first - inputs.second)*2)
+                    sampleData += InputDistance(inputs, Math.abs(inputs.first - inputs.second) * 2)
                 }
                 "build a distance model" - {
                     var distanceModel = dmb.build(sampleData)

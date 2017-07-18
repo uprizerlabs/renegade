@@ -1,7 +1,7 @@
 package dnn.metricSpaceBuilder
 
 import dnn.approx
-import dnn.distanceModelBuilder.DistanceModel
+import dnn.distanceModelBuilder.*
 import dnn.util.Two
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec

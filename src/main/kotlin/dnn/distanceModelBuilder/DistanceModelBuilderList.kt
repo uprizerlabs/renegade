@@ -1,6 +1,5 @@
 package dnn.distanceModelBuilder
 
-import dnn.metricSpaceBuilder.InputDistances
 import dnn.util.*
 import mu.KotlinLogging
 import java.util.concurrent.atomic.AtomicInteger
@@ -64,7 +63,7 @@ class DistanceModelBuilderList<InputType : Any>(builders : List<DistanceModelBui
     fun refineModelsPass(modelListToRefine: DistanceModelList<InputType>, distancePairs: InputDistances<InputType>): DistanceModelList<InputType> {
         val refineOrderedByRMSE = modelListToRefine.prioritizeByRMSE(distancePairs)
         var currentModels = modelListToRefine
-        for ((refiningIx, rmse) in refineOrderedByRMSE) {
+        for ((refiningIx, _) in refineOrderedByRMSE) {
             logger.mdc("model" to getLabelFor(refiningIx)) {
                 val refinedModel = refineByIndex(currentModels, distancePairs, refiningIx)
                 currentModels = currentModels.replace(refiningIx, refinedModel).wrap()

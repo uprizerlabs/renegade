@@ -1,7 +1,6 @@
 package dnn.distanceModelBuilder.inputTypes
 
 import dnn.distanceModelBuilder.*
-import dnn.metricSpaceBuilder.InputDistances
 import dnn.util.AveragingAccumulator
 
 class IdentityDistanceModelBuilder(label : String? = null) : DistanceModelBuilder<Any>(label) {

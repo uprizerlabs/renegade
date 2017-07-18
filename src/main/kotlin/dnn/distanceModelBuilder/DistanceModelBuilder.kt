@@ -1,6 +1,5 @@
 package dnn.distanceModelBuilder
 
-import dnn.metricSpaceBuilder.*
 import dnn.util.Two
 import kotlin.reflect.KProperty1
 

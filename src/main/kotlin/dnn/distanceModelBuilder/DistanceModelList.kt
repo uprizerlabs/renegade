@@ -1,6 +1,5 @@
 package dnn.distanceModelBuilder
 
-import dnn.metricSpaceBuilder.*
 import dnn.util.Two
 import mu.KotlinLogging
 
@@ -26,6 +25,21 @@ class DistanceModelList<InputType : Any>(
                         Pair(ix, estimator.rmse(relevancePairs))
                     }.sortedByDescending { it.second }
         return sortedWithIndex.map { it.first to it.second }.toMap(LinkedHashMap())
+    }
+
+    class ModelPredictions(val predictions : DoubleArray, val predictionSum : Double, val actualDistance : Double)
+
+    fun calculateDistanceModelContributions(inputDistances: InputDistances<InputType>) : List<ModelPredictions> {
+        return inputDistances.map {inputDistance ->
+            val predictions = DoubleArray(size = this.size)
+            var predictionSum = 0.0
+            this.withIndex().forEach { (ix, distanceModel) ->
+                val prediction = distanceModel.invoke(inputDistance.inputs)
+                predictions[ix] = prediction
+                predictionSum += prediction
+            }
+            ModelPredictions(predictions, predictionSum, inputDistance.dist)
+        }
     }
 
     fun calculateDistanceDeltasExcludingModel(

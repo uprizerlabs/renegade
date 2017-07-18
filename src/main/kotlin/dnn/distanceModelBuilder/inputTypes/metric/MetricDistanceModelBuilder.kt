@@ -3,7 +3,6 @@ package dnn.distanceModelBuilder.inputTypes.metric
 import com.github.sanity.pav.*
 import com.github.sanity.pav.spline.MonotoneSpline.ExtrapolationStrategy.FLAT
 import dnn.distanceModelBuilder.*
-import dnn.metricSpaceBuilder.InputDistances
 import dnn.util.Two
 
 open class MetricDistanceModelBuilder<InputType : Any>(override val label : String? = null, private val distanceFunction: (Two<InputType>) -> Double) : DistanceModelBuilder<InputType>(label) {

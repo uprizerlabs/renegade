@@ -2,9 +2,8 @@ package dnn.datasets.mnist
 
 import dnn.MetricSpace
 import dnn.crossValidation.*
-import dnn.distanceModelBuilder.DistanceModelBuilder
+import dnn.distanceModelBuilder.*
 import dnn.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
-import dnn.metricSpaceBuilder.wrap
 import mu.KotlinLogging
 import java.util.zip.GZIPInputStream
 

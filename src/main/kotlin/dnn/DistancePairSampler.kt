@@ -1,6 +1,6 @@
 package dnn
 
-import dnn.metricSpaceBuilder.*
+import dnn.distanceModelBuilder.*
 import dnn.util.*
 import mu.KotlinLogging
 

@@ -1,6 +1,5 @@
 package dnn.distanceModelBuilder
 
-import dnn.metricSpaceBuilder.InputDistances
 import dnn.util.*
 
 /**
