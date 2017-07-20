@@ -17,9 +17,6 @@ fun main(args: Array<String>) {
     val ms = mnistMetricSpaceBuilder(data)
     println("Done")
     val crossValidator = CrossValidator<IntArray, Int, Int>(FoldSplitStrategy(5), CorrectClassificationProportion(), data)
-//    crossValidator.test { trainingData ->
-
-    //  }
 }
 
 fun mnistMetricSpaceBuilder(data: List<Pair<IntArray, Int>>): MetricSpace<IntArray, Int> {
@@ -32,7 +29,6 @@ fun mnistMetricSpaceBuilder(data: List<Pair<IntArray, Int>>): MetricSpace<IntArr
 }
 
 fun loadMnistDataset(name: String): List<Pair<IntArray, Int>> {
-    val pairs = ArrayList<Pair<IntArray, Int>>()
     return GZIPInputStream(Dummy::class.java.getResourceAsStream(name)).bufferedReader().useLines {
         it.map { line ->
             val columns = line.split(',')

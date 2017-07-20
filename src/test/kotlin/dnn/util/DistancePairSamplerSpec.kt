@@ -1,6 +1,6 @@
-package dnn.metricSpaceBuilder
+package dnn.util
 
-import dnn.*
+import dnn.approx
 import dnn.distanceModelBuilder.InputDistances
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec

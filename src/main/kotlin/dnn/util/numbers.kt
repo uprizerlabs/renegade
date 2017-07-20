@@ -4,9 +4,13 @@ import java.util.*
 
 operator fun Number.minus(o : Number) = this.toDouble() - o.toDouble()
 
-val Int.sqr : Long get() = this.toLong()*this
+val Int.sqr get() = this.toLong()*this
 
-val Double.sqr : Double get() = this*this
+val Double.sqr get() = this*this
+
+val Double.abs get() = Math.abs(this)
+
+val Double.sqrt get() = Math.sqrt(this)
 
 data class AveragingAccumulator(val sum : Double, val count : Int) {
     constructor() : this(0.0, 0)

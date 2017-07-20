@@ -1,7 +1,7 @@
 package dnn.distanceModelBuilder
 
 import dnn.approx
-import dnn.util.Two
+import dnn.util.*
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec
 import java.util.concurrent.atomic.AtomicInteger
@@ -11,15 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class DistanceModelBuilderListSpec : FreeSpec() {
 
-    class FlatDMB : DistanceModelBuilder<Double>(label = null) {
-        override fun build(inputDistances: InputDistances<Double>): DistanceModel<Double> {
-            val average = inputDistances.map {it.dist}.average()
-            return DistanceModel {
-                average
-            }
-        }
-    }
-
     val inputs = Two(0.0, 0.0)
 
     private fun simpleInputDistance(x : Double): InputDistance<Double> {
@@ -28,7 +19,7 @@ class DistanceModelBuilderListSpec : FreeSpec() {
 
     init {
         "given a simple builder and initial models" - {
-            val builders = DistanceModelBuilderList(listOf(FlatDMB(), FlatDMB()))
+            val builders = DistanceModelBuilderList(listOf(SimpleAverageDMB(), SimpleAverageDMB()))
             val models = builders.buildInitial(listOf(simpleInputDistance(0.3)))
             "verify that individual builder refinement works" {
                 // Each should have 0.15 output

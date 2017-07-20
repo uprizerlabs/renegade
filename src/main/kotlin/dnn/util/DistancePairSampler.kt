@@ -1,7 +1,6 @@
-package dnn
+package dnn.util
 
 import dnn.distanceModelBuilder.*
-import dnn.util.*
 import mu.KotlinLogging
 
 /**
@@ -9,7 +8,7 @@ import mu.KotlinLogging
  */
 
 
-internal class DistancePairSampler<out InputType : Any, OutputType : Any>(
+class DistancePairSampler<out InputType : Any, OutputType : Any>(
         val trainingData: List<Pair<InputType, OutputType>>, val outputDistance: (OutputType, OutputType) -> Double) {
     private val logger = KotlinLogging.logger {}
 
