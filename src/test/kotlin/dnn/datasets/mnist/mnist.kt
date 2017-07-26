@@ -4,6 +4,8 @@ import dnn.MetricSpace
 import dnn.crossValidation.*
 import dnn.distanceModelBuilder.DistanceModelBuilder
 import dnn.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
+import dnn.indexes.ExhaustiveMetricSpaceIndex
+import dnn.util.Two
 import mu.KotlinLogging
 import java.util.zip.GZIPInputStream
 
@@ -14,9 +16,24 @@ private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
     val data = loadMnistDataset("mnist_train.csv.gz")
-    val ms = mnistMetricSpaceBuilder(data)
-    println("Done")
     val crossValidator = CrossValidator<IntArray, Int, Int>(FoldSplitStrategy(5), CorrectClassificationProportion(), data)
+
+    logger.error("This will take 2 days per fold!  Not practical with ExhaustiveMetricSpaceIndex")
+
+    crossValidator.test { data ->
+        val metricSpace = mnistMetricSpaceBuilder(data)
+        val msIndex = ExhaustiveMetricSpaceIndex<Pair<IntArray, Int?>, Double>({ metricSpace.estimateDistance(Two(it.first.first, it.second.first)) })
+        data.forEach { msIndex.add(it) }
+        var count = 0
+        val f = { inputs: IntArray ->
+            count++
+            if ((count and (count - 1) == 0)) {
+                logger.info("Tested $count values")
+            }
+            msIndex.searchFor(inputs to null).first().item.second!!
+        }
+        f
+    }
 }
 
 fun mnistMetricSpaceBuilder(data: List<Pair<IntArray, Int>>): MetricSpace<IntArray, Int> {
@@ -25,7 +42,7 @@ fun mnistMetricSpaceBuilder(data: List<Pair<IntArray, Int>>): MetricSpace<IntArr
         builders += DoubleDistanceModelBuilder().map("$ix") { it[ix].toDouble() }
     }
     val identity: (Int, Int) -> Double = { a, b -> if (a == b) 1.0 else 0.0 }
-    return MetricSpace(modelBuilders = builders, trainingData = data, outputDistance = { a: Int, b: Int -> if (a == b) 0.0 else 1.0 }, maxSamples = 100000, learningRate = 1.0)
+    return MetricSpace(modelBuilders = builders, trainingData = data, outputDistance = { a: Int, b: Int -> if (a == b) 0.0 else 1.0 }, maxSamples = 10000, learningRate = 0.01, maxIterations = 1)
 
 }
 

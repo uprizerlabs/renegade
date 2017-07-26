@@ -14,7 +14,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
         val trainingData: List<Pair<InputType, OutputType>>,
         val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
-        val learningRate : Double = 1.0,
+        val learningRate: Double = 1.0, val maxIterations: Int? = null,
         val outputDistance: (OutputType, OutputType) -> Double) : (Two<InputType>) -> Double {
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)
 
@@ -53,30 +53,35 @@ class MetricSpace<InputType : Any, OutputType : Any>(
                 val contributionAfterRefinement = refiner.modelTotalAvgAbsContribution(toRefine.index)
                 logger.debug("Refined model #${toRefine.index}, contribution ${toRefine.contribution} -> $contributionAfterRefinement")
             }
-            if (shouldTerminate(rmsesByIteration)) break
+            if (shouldTerminate(iteration, rmsesByIteration)) break
             iteration++
         }
 
         return refiner.models
     }
 
-    private fun shouldTerminate(rmses: ArrayList<Double>): Boolean {
-        return if (rmses.size == 1) false else if (rmses.size > 2) {
-            if (rmses.last() >= rmses[rmses.size - 2]) {
-                logger.info("Terminating refinement because RMSE didn't improve")
-                true
-            } else {
-                val initialImprovement = rmses[1] - rmses[0]
-                val lastImprovement = rmses.last() - rmses[rmses.size - 2]
-                if (lastImprovement < initialImprovement / 100.0) {
-                    logger.info("Terminating refinement because last improvement was insignificant relative to initial improvement")
+    private fun shouldTerminate(iteration: Int, rmses: ArrayList<Double>): Boolean {
+        return if (maxIterations != null && iteration == maxIterations) {
+            logger.info("Terminating refinement because we've reached maxIterations")
+            true
+        } else {
+            if (rmses.size == 1) false else if (rmses.size > 2) {
+                if (rmses.last() >= rmses[rmses.size - 2]) {
+                    logger.info("Terminating refinement because RMSE didn't improve")
                     true
                 } else {
-                    false
+                    val initialImprovement = rmses[0] - rmses[1]
+                    val lastImprovement = rmses[rmses.size - 2] - rmses[rmses.size - 1]
+                    if (lastImprovement < initialImprovement / 100.0) {
+                        logger.info("Terminating refinement because last improvement was insignificant relative to initial improvement")
+                        true
+                    } else {
+                        false
+                    }
                 }
+            } else {
+                false
             }
-        } else {
-            false
         }
     }
 
@@ -92,3 +97,4 @@ class MetricSpace<InputType : Any, OutputType : Any>(
 
 }
 
+private fun <X> List<X>.secondLast() = this[this.size - 2]

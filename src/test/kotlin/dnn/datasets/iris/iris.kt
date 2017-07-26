@@ -44,7 +44,7 @@ fun irisMetricSpaceBuilder() {
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalWidth)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalLength)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalWidth)
-    val msb = MetricSpace(builders, data, 100000, 1.0, { a, b -> if (a == b) 0.0 else 1.0 })
+    val msb = MetricSpace(builders, data, 100000, 1.0, null, { a, b -> if (a == b) 0.0 else 1.0 })
 
     val msi = ExhaustiveMetricSpaceIndex<Pair<IrisMeasurements, IrisSpecies>, Double>({msb.estimateDistance(Two(it.first.first, it.second.first))})
 
