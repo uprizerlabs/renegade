@@ -8,7 +8,7 @@ import mu.KotlinLogging
  */
 
 
-class DistancePairSampler<out InputType : Any, OutputType : Any>(
+class InputPairSampler<out InputType : Any, OutputType : Any>(
         val trainingData: List<Pair<InputType, OutputType>>, val outputDistance: (OutputType, OutputType) -> Double) {
     private val logger = KotlinLogging.logger {}
 

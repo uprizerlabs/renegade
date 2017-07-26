@@ -2,7 +2,7 @@ package dnn.datasets.mnist
 
 import dnn.MetricSpace
 import dnn.crossValidation.*
-import dnn.distanceModelBuilder.*
+import dnn.distanceModelBuilder.DistanceModelBuilder
 import dnn.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import mu.KotlinLogging
 import java.util.zip.GZIPInputStream
@@ -24,7 +24,8 @@ fun mnistMetricSpaceBuilder(data: List<Pair<IntArray, Int>>): MetricSpace<IntArr
     for (ix in data.first().first.indices) {
         builders += DoubleDistanceModelBuilder().map("$ix") { it[ix].toDouble() }
     }
-    return MetricSpace(distanceModelBuilderList = builders.wrap(), trainingData = data, outputDistance = { a: Int, b: Int -> if (a == b) 0.0 else 1.0 }, maxSamples = 1000)
+    val identity: (Int, Int) -> Double = { a, b -> if (a == b) 1.0 else 0.0 }
+    return MetricSpace(modelBuilders = builders, trainingData = data, outputDistance = { a: Int, b: Int -> if (a == b) 0.0 else 1.0 }, maxSamples = 100000, learningRate = 1.0)
 
 }
 

@@ -13,9 +13,9 @@ class ModelRefinerSpec : FreeSpec() {
             pairs += InputDistance(Two(0.0, 0.1), 0.3)
             pairs += InputDistance(Two(0.0, 0.2), 0.6)
             "and given a model builder built using these pairs and fixedprop DMBs" - {
-                val modelBuilders = DistanceModelBuilderList(listOf(FixedProportionDMB(), FixedProportionDMB()).wrap())
+                val modelBuilders = ArrayList<DistanceModelBuilder<Double>>(listOf(FixedProportionDMB(), FixedProportionDMB()))
                 "build a Refiner using these initial models" - {
-                    val initialModels = modelBuilders.map { it.build(pairs) }.wrap()
+                    val initialModels = modelBuilders.map { it.build(pairs) }
                     val refiner = ModelRefiner(initialModels, modelBuilders, pairs)
                     "verify that initial models are set correctly" {
                         val models = refiner.models

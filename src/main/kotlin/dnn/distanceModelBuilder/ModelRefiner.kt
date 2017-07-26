@@ -1,11 +1,15 @@
 package dnn.distanceModelBuilder
 
 import dnn.util.*
+import mu.KotlinLogging
 
 class ModelRefiner<InputType : Any>(
-        initialModels: DistanceModelList<InputType>,
-        private val modelBuilders: DistanceModelBuilderList<InputType>,
-        private val pairs: InputDistances<InputType>) {
+        initialModels: List<DistanceModel<InputType>>,
+        private val modelBuilders: List<DistanceModelBuilder<InputType>>,
+        private val pairs: InputDistances<InputType>, private val learningRate : Double = 1.0) {
+
+    private val logger = KotlinLogging.logger {}
+
     private val predictions = PredictionCache(initialModels.size, pairs.size)
 
     private val currentModels = ArrayList(initialModels)
@@ -22,14 +26,14 @@ class ModelRefiner<InputType : Any>(
 
     fun calculateRMSE(): Double
             = pairs.withIndex().map { pair ->
-        println("pair: $pair sum: ${predictions.getPrediction(pair.index)}")
         (pair.value.dist - predictions.getPrediction(pair.index)).sqr
     }.average().sqrt
 
-    fun modelTotalAbsContribution(modelIx : Int) = predictions.getAbsContributionTotal(modelIx)
+    fun modelTotalAvgAbsContribution(modelIx : Int) = predictions.getAbsContributionTotal(modelIx)
 
     fun refineModel(modelIx: Int) {
-        val refinedModel = modelBuilders[modelIx].build(predictionsExcludingModel(modelIx))
+        val predictionsExcludingModel = predictionsExcludingModel(modelIx)
+        val refinedModel = modelBuilders[modelIx].build(predictionsExcludingModel)
         updateModel(modelIx, refinedModel)
     }
 
@@ -38,7 +42,9 @@ class ModelRefiner<InputType : Any>(
             val predictedDist = predictions.getPredictionWithoutContribution(pairIx, modelIxToExclude)
             val actualDist = pair.dist
             val delta = actualDist - predictedDist
-            InputDistance(pair.inputs, delta)
+            val previousPrediction = predictions.getContribution(pairIx, modelIxToExclude)
+            val updated = (delta * learningRate) + (previousPrediction * (1.0 - learningRate))
+            InputDistance(pair.inputs, updated)
         }.toList()
     }
 

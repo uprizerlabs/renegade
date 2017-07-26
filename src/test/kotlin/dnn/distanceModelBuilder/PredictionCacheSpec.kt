@@ -4,7 +4,7 @@ import dnn.approx
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
 
-internal class PredictionCacheSpec : FreeSpec() {
+class PredictionCacheSpec : FreeSpec() {
     init {
         "verify updateContributions" {
             val cache = PredictionCache(2, 2)
@@ -35,8 +35,8 @@ internal class PredictionCacheSpec : FreeSpec() {
             cache.getContribution(pairIx = 0, modelIx = 0) shouldBe approx(-0.6)
             cache.getContribution(pairIx = 1, modelIx = 0) shouldBe approx(0.4)
             cache.getPrediction(pairIx = 1) shouldBe approx(0.4+0.7)
-            cache.getAbsContributionTotal(modelIx = 0) shouldBe approx(0.6 + 0.4)
-            cache.getAbsContributionTotal(modelIx = 1) shouldBe approx(0.2 + 0.7)
+            cache.getAbsContributionTotal(modelIx = 0) shouldBe approx(1.0)
+            cache.getAbsContributionTotal(modelIx = 1) shouldBe approx(0.9)
         }
     }
 }

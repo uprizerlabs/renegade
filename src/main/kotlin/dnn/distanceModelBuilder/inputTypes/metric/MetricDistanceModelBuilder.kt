@@ -16,5 +16,4 @@ open class MetricDistanceModelBuilder<InputType : Any>(override val label : Stri
             pavInterpolator(distance)
         }
     }
-
 }

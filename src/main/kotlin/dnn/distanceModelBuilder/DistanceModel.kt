@@ -6,7 +6,7 @@ import dnn.util.*
  * Created by ian on 7/9/17.
  */
 
-class DistanceModel<in InputType : Any>(model : (Two<InputType>) -> Double) : (Two<InputType>) -> Double by model {
+open class DistanceModel<in InputType : Any>(model : (Two<InputType>) -> Double) : (Two<InputType>) -> Double by model {
 
     fun rmse(data: InputDistances<InputType>): Double {
         val distanceModel = this
@@ -16,3 +16,6 @@ class DistanceModel<in InputType : Any>(model : (Two<InputType>) -> Double) : (T
     }
 
 }
+
+fun <InputType : Any> List<DistanceModel<InputType>>.estimate(inputs: Two<InputType>): Double
+        = this.map { it.invoke(inputs) }.sum()

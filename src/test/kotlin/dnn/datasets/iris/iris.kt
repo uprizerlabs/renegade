@@ -1,9 +1,8 @@
 package dnn.datasets.iris
 
 import dnn.MetricSpace
-import dnn.distanceModelBuilder.*
+import dnn.distanceModelBuilder.DistanceModelBuilder
 import dnn.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
-import dnn.metricSpaceBuilder.*
 import dnn.indexes.ExhaustiveMetricSpaceIndex
 import dnn.util.Two
 import mu.KotlinLogging
@@ -45,11 +44,7 @@ fun irisMetricSpaceBuilder() {
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalWidth)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalLength)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalWidth)
-    val msb = MetricSpace(
-            distanceModelBuilderList = builders.wrap(),
-            trainingData = data,
-            outputDistance = { a, b -> if (a == b) 0.0 else 1.0 }
-    )
+    val msb = MetricSpace(builders, data, 100000, 1.0, { a, b -> if (a == b) 0.0 else 1.0 })
 
     val msi = ExhaustiveMetricSpaceIndex<Pair<IrisMeasurements, IrisSpecies>, Double>({msb.estimateDistance(Two(it.first.first, it.second.first))})
 

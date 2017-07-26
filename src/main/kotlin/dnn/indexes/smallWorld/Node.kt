@@ -9,13 +9,13 @@ data class Node<ItemType : Any>(val item: ItemType) {
 
     fun getNeighbors(allNodes : RandomAccessSet<Node<ItemType>>): Set<Node<ItemType>> {
         return synchronized(neighborsBySampleRecency) {
-            buildSequence {
+            buildSequence<Node<ItemType>> {
                 neighborsBySampleRecency.toList().forEach { nodeRef ->
                     val node = nodeRef.get()
                     if (node == null || !allNodes.contains(node)) {
                         neighborsBySampleRecency.removeIf { it.get() == node }
                     } else {
-                        yield(node!!) // !! shouldn't be necessary but it is, perhaps coroutines bug
+                        yield(node) // !! shouldn't be necessary but it is, perhaps coroutines bug
                     }
                 }
             }.toSet()
