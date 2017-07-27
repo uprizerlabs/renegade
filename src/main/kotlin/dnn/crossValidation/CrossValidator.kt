@@ -19,9 +19,9 @@ class CrossValidator<out InputType : Any, out OutputType : Any, in PredictionTyp
     fun test(predictiveModelBuilder: (List<InputOutputPair<InputType, OutputType>>) -> ((InputType) -> PredictionType)): Double {
         val loss = DoubleSummaryStatistics()
         splitStrategy.split(data).forEach { (training, testing) ->
-            logger.info("Building model")
+            logger.info("Building model with ${training.size} items")
             val model = predictiveModelBuilder.invoke(training)
-            logger.info("Testing model")
+            logger.info("Testing model with ${testing.size} items")
             for ((input, output) in testing) {
                 loss.accept(scoringFunction.invoke(model.invoke(input), output))
             }
