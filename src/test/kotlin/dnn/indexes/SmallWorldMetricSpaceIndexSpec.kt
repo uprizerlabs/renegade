@@ -41,7 +41,7 @@ class SmallWorldMetricSpaceIndexSpec : FreeSpec() {
                     = Math.sqrt((points.first.x - points.second.x).sqr + (points.first.y - points.second.y).sqr)
 
             val dsmsi = SmallWorldMetricSpaceIndex(::distance, lookAhead = 100)
-            "on inserting 100000 random points" - {
+            "on inserting 100000 random numWaypoints" - {
                 val points = (0..100000).map { Point(random.nextDouble(), random.nextDouble()) }.toMutableList()
                 points.forEach { dsmsi.add(it) }
                 "on retrieving `elephant`" {

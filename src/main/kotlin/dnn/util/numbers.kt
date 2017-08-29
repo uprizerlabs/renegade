@@ -19,4 +19,9 @@ data class AveragingAccumulator(val sum : Double, val count : Int) {
     operator fun plus(v : Double) = AveragingAccumulator(sum + v, count + 1)
 }
 
+infix fun List<Double>.distanceTo(other : List<Double>) : Double {
+    require(this.size == other.size, {"List sizes must match"})
+    return this.indices.map {(this[it]-other[it]).sqr}.sum().sqrt
+}
+
 val random = Random()

@@ -33,3 +33,8 @@ fun <A> List<A>.replace( at: Int, with : A) : List<A> {
     mList[at] = with
     return mList
 }
+
+fun <T> MutableList<T>.shuffle() : MutableList<T> {
+    Collections.shuffle(this)
+    return this
+}
