@@ -3,11 +3,13 @@ package dnn.indexes.waypoint
 import dnn.approx
 import dnn.indexes.*
 import dnn.util.*
-import io.kotlintest.matchers.shouldBe
+import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
+import mu.KotlinLogging
 
 class WaypointIndexSpec : FreeSpec() {
 
+    private val logger = KotlinLogging.logger {}
 
     init {
         "given a small dataset of 2 points" - {
@@ -39,7 +41,6 @@ class WaypointIndexSpec : FreeSpec() {
         }
 
         "given a 2D point dataset with 10000 points" - {
-
             val points = ArrayList<Point>()
             for (x in 0 .. 10000) {
                 points += Point(random.nextDouble(), random.nextDouble())
@@ -64,10 +65,16 @@ class WaypointIndexSpec : FreeSpec() {
                         val time = compareCount
                         return DistanceAccuracy(distance, time)
                     }
-                    val exhaustiveResults = searchWith(exhaustiveIndex)
-                    println("Exhaustive: $exhaustiveResults")
-                    val waypointResults = searchWith(waypointIndex)
-                    println("Waypoint: $waypointResults")
+                    val exhaustiveAvgDist = (0 .. 100).map {
+                        val exhaustiveResults = searchWith(exhaustiveIndex)
+                        exhaustiveResults.distance
+                    }.average()
+                    val waypointAvgDist = (0 .. 100).map {
+                        val waypointResults = searchWith(waypointIndex)
+                        waypointResults.distance
+                    }.average()
+                    logger.info("Exhaustive average distance: $exhaustiveAvgDist, waypoint average distance: $waypointAvgDist")
+                    waypointAvgDist should beLessThanOrEqualTo(exhaustiveAvgDist * 2)
                 }
             }
         }

@@ -4,7 +4,7 @@ import dnn.MetricSpace
 import dnn.crossValidation.*
 import dnn.distanceModelBuilder.DistanceModelBuilder
 import dnn.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
-import dnn.indexes.ExhaustiveMetricSpaceIndex
+import dnn.indexes.waypoint.WaypointIndex
 import dnn.util.Two
 import mu.KotlinLogging
 import java.util.zip.GZIPInputStream
@@ -16,11 +16,11 @@ private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
     val data = loadMnistDataset("mnist_train.csv.gz")
-    val crossValidator = CrossValidator<IntArray, Int, Int>(SimpleSplitStrategy(0.001), CorrectClassificationProportion(), data)
+    val crossValidator = CrossValidator<IntArray, Int, Int>(SimpleSplitStrategy(0.1), CorrectClassificationProportion(), data)
 
     crossValidator.test { data ->
         val metricSpace = mnistMetricSpaceBuilder(data)
-        val msIndex = ExhaustiveMetricSpaceIndex<Pair<IntArray, Int?>, Double>({ metricSpace.estimateDistance(Two(it.first.first, it.second.first)) })
+        val msIndex = WaypointIndex<Pair<IntArray, Int?>>({ metricSpace.estimateDistance(Two(it.first.first, it.second.first)) }, 8, data)
         data.forEach { msIndex.add(it) }
         var count = 0
         val f = { inputs: IntArray ->
@@ -40,7 +40,7 @@ fun mnistMetricSpaceBuilder(data: List<Pair<IntArray, Int>>): MetricSpace<IntArr
         builders += DoubleDistanceModelBuilder().map("$ix") { it[ix].toDouble() }
     }
     val identity: (Int, Int) -> Double = { a, b -> if (a == b) 1.0 else 0.0 }
-    return MetricSpace(modelBuilders = builders, trainingData = data, outputDistance = { a: Int, b: Int -> if (a == b) 0.0 else 1.0 }, maxSamples = 10000, learningRate = 0.01, maxIterations = 0)
+    return MetricSpace(modelBuilders = builders, trainingData = data, outputDistance = { a: Int, b: Int -> if (a == b) 0.0 else 1.0 }, maxSamples = 10000, learningRate = 0.01)
 
 }
 
