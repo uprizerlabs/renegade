@@ -18,3 +18,16 @@ fun <T, C : Comparable<C>> Sequence<Prioritized<T, C>>.priorityBuffer(bufferSize
         }
     }
 }
+
+fun <K> Sequence<K>.toPairSequence() : Sequence<Pair<K, K>> {
+    val previousValues = ArrayList<K>()
+    return buildSequence {
+        for (next in this@toPairSequence) {
+            for (pair in previousValues) {
+                yield (next to pair)
+                yield (pair to next)
+            }
+            previousValues += next
+        }
+    }
+}
