@@ -1,10 +1,9 @@
 package dnn.aggregators
 
-import dnn.util.sqrt
+import dnn.util.math.sqrt
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics
 
-class SummaryStatisticsAggregator : OutputAggregator<Double, SummaryStatistics> {
-
+class SummaryStatisticsAggregator : OutputAggregator<Double, SummaryStatistics, Double> {
     override fun initialize(population: SummaryStatistics?): SummaryStatistics {
         val ss = SummaryStatistics()
         if (population != null) {
@@ -20,11 +19,13 @@ class SummaryStatisticsAggregator : OutputAggregator<Double, SummaryStatistics> 
     }
 
     override fun bias(population: SummaryStatistics, of: SummaryStatistics): Double {
-        return of.mean - population.mean
+        return Math.abs(of.mean - population.mean)
     }
 
     override fun variance(population: SummaryStatistics, of: SummaryStatistics): Double {
         return population.standardDeviation / of.n.toDouble().sqrt
     }
+
+    override fun prediction(of: SummaryStatistics) = of.mean
 
 }

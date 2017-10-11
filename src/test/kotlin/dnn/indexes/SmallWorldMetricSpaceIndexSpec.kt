@@ -2,6 +2,7 @@ package dnn.indexes
 
 import dnn.indexes.smallWorld.*
 import dnn.util.*
+import dnn.util.math.*
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
 import mu.KotlinLogging

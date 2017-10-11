@@ -1,4 +1,4 @@
-package dnn.util
+package dnn.util.math
 
 import java.util.*
 

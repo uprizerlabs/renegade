@@ -1,6 +1,6 @@
 package dnn.crossValidation
 
-import dnn.util.random
+import dnn.util.math.random
 import mu.KotlinLogging
 import java.util.*
 import kotlin.coroutines.experimental.buildSequence

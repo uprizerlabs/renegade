@@ -3,6 +3,7 @@ package dnn.metricSpaceBuilder
 import dnn.approx
 import dnn.distanceModelBuilder.*
 import dnn.util.*
+import dnn.util.math.sqr
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec
 

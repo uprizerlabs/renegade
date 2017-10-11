@@ -2,6 +2,7 @@ package dnn.distanceModelBuilder.inputTypes.metric
 
 import dnn.distanceModelBuilder.InputDistance
 import dnn.util.*
+import dnn.util.math.random
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
 

@@ -7,7 +7,7 @@ import kotlin.collections.ArrayList
 
 class SequencesSpec : FreeSpec() {
     init {
-        "given a priorized list of 3 points" - {
+        "given a prioritized list of 3 points" - {
             val initial = ArrayList<Prioritized<Int, Double>>()
             initial += Prioritized(1, 0.5)
             initial += Prioritized(2, 0.4)
@@ -52,6 +52,17 @@ class SequencesSpec : FreeSpec() {
                 }
             }
         }
-
+        "lookAheadLowest" {
+            val sequence = sequenceOf(5, 4, 5, 5, 5, 1)
+            val result = sequence.lookAheadLowest(2, {it.toDouble()})
+            result?.index shouldBe 1
+            result?.value shouldBe 4
+        }
+        "lookAheadHighest" {
+            val sequence = sequenceOf(5, 7, 5, 5, 5, 8)
+            val result = sequence.lookAheadHighest(2, {it.toDouble()})
+            result?.index shouldBe 1
+            result?.value shouldBe 7
+        }
     }
 }

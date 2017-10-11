@@ -1,5 +1,6 @@
-package dnn.util
+package dnn.util.math.stats
 
+import dnn.util.math.sqr
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
 
@@ -17,7 +18,7 @@ class SummarySpec : FreeSpec() {
                     summary.mean shouldBe about(mean)
                 }
                 "sum should be correct"  {
-                    summary.sum shouldBe about(values.map {it.value}.sum())
+                    summary.sum shouldBe about(values.map { it.value }.sum())
                 }
             }
         }
@@ -25,7 +26,7 @@ class SummarySpec : FreeSpec() {
             val values = listOf(WeightedValue(3.7, 1.0), WeightedValue(2.2, 1.0), WeightedValue(5.5, 1.0))
             val mean = values.summary().mean
             values.populationStdDev() shouldBe about(
-                    Math.sqrt(values.map {WeightedValue((it.value-mean).sqr, it.weight)}.summary().mean))
+                    Math.sqrt(values.map { WeightedValue((it.value - mean).sqr, it.weight) }.summary().mean))
             values.sampleStdDev() shouldBe about(1.65227)
         }
     }

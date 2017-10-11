@@ -3,6 +3,7 @@ package dnn.distanceModelBuilder
 import dnn.distanceModelBuilder.inputTypes.IdentityDistanceModelBuilder
 import dnn.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import dnn.util.*
+import dnn.util.math.random
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
 

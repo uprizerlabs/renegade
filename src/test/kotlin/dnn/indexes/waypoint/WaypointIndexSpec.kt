@@ -3,6 +3,7 @@ package dnn.indexes.waypoint
 import dnn.approx
 import dnn.indexes.*
 import dnn.util.*
+import dnn.util.math.*
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
 import mu.KotlinLogging

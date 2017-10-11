@@ -1,6 +1,6 @@
 package dnn.distanceModelBuilder
 
-import dnn.util.abs
+import dnn.util.math.abs
 
 class PredictionCache(private val modelCount : Int, private val pairCount : Int) {
     private val contributions = Array(size = modelCount, init = {DoubleArray(size = pairCount)})

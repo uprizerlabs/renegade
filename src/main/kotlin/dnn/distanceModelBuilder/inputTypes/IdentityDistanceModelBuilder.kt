@@ -1,7 +1,7 @@
 package dnn.distanceModelBuilder.inputTypes
 
 import dnn.distanceModelBuilder.*
-import dnn.util.AveragingAccumulator
+import dnn.util.math.AveragingAccumulator
 
 class IdentityDistanceModelBuilder(label : String? = null) : DistanceModelBuilder<Any>(label) {
     override fun build(trainingData: InputDistances<Any>) : DistanceModel<Any> {

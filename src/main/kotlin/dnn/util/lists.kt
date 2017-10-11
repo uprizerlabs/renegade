@@ -1,5 +1,6 @@
 package dnn.util
 
+import dnn.util.math.sqr
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.coroutines.experimental.buildSequence

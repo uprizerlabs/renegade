@@ -3,6 +3,7 @@ package dnn
 import com.google.common.collect.Iterables
 import dnn.distanceModelBuilder.*
 import dnn.util.*
+import dnn.util.math.sqr
 import mu.KotlinLogging
 
 /**

@@ -1,6 +1,6 @@
 package dnn.distanceModelBuilder
 
-import dnn.util.*
+import dnn.util.math.*
 import mu.KotlinLogging
 
 class ModelRefiner<InputType : Any>(

@@ -1,6 +1,7 @@
 package dnn.distanceModelBuilder
 
 import dnn.util.*
+import dnn.util.math.sqr
 
 /**
  * Created by ian on 7/9/17.

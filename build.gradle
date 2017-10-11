@@ -2,7 +2,7 @@ group 'com.uprizer'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.1.4-3'
+    ext.kotlin_version = '1.1.51'
 
     repositories {
         mavenCentral()
@@ -38,24 +38,21 @@ repositories {
     mavenCentral()
     jcenter()
     maven { url 'https://jitpack.io' }
-    maven { url "http://dl.bintray.com/jetbrains/spek" }
     maven {url "https://dl.bintray.com/kotlin/kotlin-eap-1.1"}
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile 'com.github.sanity:pairAdjacentViolators:1.4.4'
-    compile 'io.github.microutils:kotlin-logging:1.4.5'
     compile group: 'com.google.guava', name: 'guava', version: '23.0'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.1'
 
-    testCompile 'io.kotlintest:kotlintest:2.0.3'
+    // Logging
+    compile 'io.github.microutils:kotlin-logging:1.4.5'
     testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
-    // testCompile 'org.jetbrains.spek:spek-api:1.1.2'
-    // testRuntime 'org.jetbrains.spek:spek-junit-platform-engine:1.1.2'
-    // testCompile 'org.amshove.kluent:kluent:1.24'
+    testCompile 'io.kotlintest:kotlintest:2.0.3'
 }
 
 kotlin { experimental { coroutines 'enable' } }

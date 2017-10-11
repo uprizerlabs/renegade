@@ -2,6 +2,7 @@ package dnn.indexes.waypoint
 
 import dnn.indexes.MetricSpaceIndex
 import dnn.util.*
+import dnn.util.math.distanceTo
 import mu.KotlinLogging
 import java.util.concurrent.ConcurrentHashMap
 
