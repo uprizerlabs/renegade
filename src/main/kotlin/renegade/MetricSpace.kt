@@ -14,8 +14,8 @@ import renegade.util.math.sqr
 class MetricSpace<InputType : Any, OutputType : Any>(
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
         val trainingData: List<Pair<InputType, OutputType>>,
-        val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
-        val learningRate: Double = 1.0, val maxIterations: Int? = null,
+        val maxSamples: Int = Math.min(10_000, Iterables.size(trainingData).sqr).toInt(),
+        val learningRate: Double = 0.1, val maxIterations: Int? = null,
         val outputDistance: (OutputType, OutputType) -> Double) : (Two<InputType>) -> Double {
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)
 
@@ -39,26 +39,32 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         val distanceModelList = modelBuilders.map({ modelBuilder -> modelBuilder.build(distancePairs, 1.0 / modelBuilders.size) })
         logger.info("${distanceModelList.size} modelBuilders distanceModelList built.")
 
-        val refiner = ModelRefiner(distanceModelList, modelBuilders, distancePairs, learningRate)
 
-        val rmsesByIteration = ArrayList<Double>()
+        return if (distanceModelList.size > 1) {
+            val refiner = ModelRefiner(distanceModelList, modelBuilders, distancePairs, learningRate)
 
-        var iteration = 0
-        while (true) {
-            val modelsRMSE = refiner.calculateRMSE()
-            logger.info("Iteration #$iteration, RMSE: $modelsRMSE")
-            rmsesByIteration += modelsRMSE
-            val modelsAscendingByContribution = determiningOrdering(refiner)
-            for (toRefine in modelsAscendingByContribution) {
-                refiner.refineModel(toRefine.index)
-                val contributionAfterRefinement = refiner.modelTotalAvgAbsContribution(toRefine.index)
-                logger.debug("Refined model #${toRefine.index}, contribution ${toRefine.contribution} -> $contributionAfterRefinement")
+            val rmsesByIteration = ArrayList<Double>()
+
+            var iteration = 0
+            while (true) {
+                val modelsRMSE = refiner.calculateRMSE()
+                logger.info("Iteration #$iteration, RMSE: $modelsRMSE")
+                rmsesByIteration += modelsRMSE
+                val modelsAscendingByContribution = determiningOrdering(refiner)
+                for (toRefine in modelsAscendingByContribution) {
+                    refiner.refineModel(toRefine.index)
+                    val contributionAfterRefinement = refiner.modelTotalAvgAbsContribution(toRefine.index)
+                    logger.debug("Refined model #${toRefine.index}, contribution ${toRefine.contribution} -> $contributionAfterRefinement")
+                }
+                if (shouldTerminate(iteration, rmsesByIteration)) break
+                iteration++
             }
-            if (shouldTerminate(iteration, rmsesByIteration)) break
-            iteration++
+            refiner.models
+        } else {
+            logger.warn("Refining skipped because we only have one model builder")
+            distanceModelList
         }
 
-        return refiner.models
     }
 
     private fun shouldTerminate(iteration: Int, rmses: ArrayList<Double>): Boolean {

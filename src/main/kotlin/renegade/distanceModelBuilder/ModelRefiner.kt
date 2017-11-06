@@ -3,6 +3,16 @@ package renegade.distanceModelBuilder
 import mu.KotlinLogging
 import renegade.util.math.*
 
+/**
+ * Given a set of [modelBuilders], and a sampling of [InputDistance] [pairs], use an iterative technique to
+ * create a new set of [modelBuilders] which isolates the unique contribution of each builder.
+ *
+ * This is similar to a dimensionality reduction technique that seeks to remove correlations between
+ * input scalars, and almost university results in an improvement in discriminative ability.
+ *
+ * @author ian
+ *
+ */
 class ModelRefiner<InputType : Any>(
         initialModels: List<DistanceModel<InputType>>,
         private val modelBuilders: List<DistanceModelBuilder<InputType>>,
@@ -32,6 +42,7 @@ class ModelRefiner<InputType : Any>(
     fun modelTotalAvgAbsContribution(modelIx : Int) = predictions.getAbsContributionTotal(modelIx)
 
     fun refineModel(modelIx: Int) {
+        logger.debug("Refining model $modelIx")
         val predictionsExcludingModel = predictionsExcludingModel(modelIx)
         val refinedModel = modelBuilders[modelIx].build(predictionsExcludingModel)
         updateModel(modelIx, refinedModel)

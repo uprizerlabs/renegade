@@ -1,7 +1,7 @@
 package renegade.aggregators
 
-import renegade.util.math.sqrt
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics
+import renegade.util.math.sqrt
 
 class SummaryStatisticsAggregator : OutputAggregator<Double, SummaryStatistics, Double> {
     override fun initialize(population: SummaryStatistics?): SummaryStatistics {

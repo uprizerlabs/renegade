@@ -4,7 +4,7 @@ import renegade.util.Two
 import kotlin.reflect.KProperty1
 
 /**
- * Created by ian on 7/10/17.
+ * Builds DistanceModels based on a list of [InputDistances].
  */
 abstract class DistanceModelBuilder<InputType : Any>(open val label: String?) {
 

@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Created by ian on 7/4/17.
+ * A simple but very inefficient [MetricSpaceIndex]
  */
 class ExhaustiveMetricSpaceIndex<ItemType : Any, DistanceType : Comparable<DistanceType>>(distanceFunction: (Two<ItemType>) -> DistanceType)
     : MetricSpaceIndex<ItemType, DistanceType>(distanceFunction) {

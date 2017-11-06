@@ -13,7 +13,7 @@ typealias InputOutputPair<T, U> = Pair<T, U>
 
 class CrossValidator<out InputType : Any, out OutputType : Any, in PredictionType : Any>(
         private val splitStrategy: SplitStrategy<InputType, OutputType>,
-        private val scoringFunction: (PredictionType, OutputType) -> Double,
+        private val scoringFunction: ScoringFunction<PredictionType, OutputType>,
         private val data: Iterable<InputOutputPair<InputType, OutputType>>
 ) {
     fun test(predictiveModelBuilder: (List<InputOutputPair<InputType, OutputType>>) -> ((InputType) -> PredictionType)): Double {
@@ -27,7 +27,7 @@ class CrossValidator<out InputType : Any, out OutputType : Any, in PredictionTyp
             }
         }
         loss.apply {
-            logger.info("Tested on $count test datums, loss is $average")
+            logger.info("Tested on $count test datums, ${scoringFunction.name} is $average")
         }
         return loss.average
     }
@@ -38,7 +38,14 @@ data class TrainTest<InputType : Any, OutputType : Any>(
         val testing: ArrayList<InputOutputPair<InputType, OutputType>>
 )
 
-class CorrectClassificationProportion<in OutputType : Any> : (OutputType, OutputType) -> Double {
+interface ScoringFunction<in PredictionType : Any, in OutputType : Any> : (PredictionType, OutputType) -> Double {
+    val name : String
+}
+
+class CorrectClassificationProportion<in OutputType : Any> : ScoringFunction<OutputType, OutputType> {
+    override val name: String
+        get() = "correctly classified proportion"
+
     override fun invoke(output: OutputType, classification: OutputType) = if (output == classification) 1.0 else 0.0
 
 }

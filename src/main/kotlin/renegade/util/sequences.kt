@@ -1,7 +1,10 @@
 package renegade.util
 
+import mu.KotlinLogging
 import java.util.*
 import kotlin.coroutines.experimental.buildSequence
+
+private val logger = KotlinLogging.logger {}
 
 data class Prioritized<T, P : Comparable<P>>(val item : T, val priority : P)
 
@@ -20,8 +23,9 @@ fun <T, C : Comparable<C>> Sequence<Prioritized<T, C>>.priorityBuffer(bufferSize
     }
 }
 
-fun <K> Sequence<K>.lookAheadHighest(lookAhead: Int = 5, valueExtractor: (K) -> Double): IndexedValue<K>?
-        = this.lookAheadLowest(lookAhead = lookAhead, valueExtractor = { -valueExtractor(it) })
+fun <K> Sequence<K>.lookAheadHighest(lookAhead: Int = 5, valueExtractor: (K) -> Double): IndexedValue<K>? {
+    return this.lookAheadLowest(lookAhead = lookAhead, valueExtractor = { -valueExtractor(it) })
+}
 
 fun <K> Sequence<K>.lookAheadLowest(lookAhead: Int = 5, valueExtractor: (K) -> Double): IndexedValue<K>? {
     var best: IndexedValue<Pair<K, Double>>? = null

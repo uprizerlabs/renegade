@@ -1,10 +1,12 @@
 package renegade.distanceModelBuilder
 
-import renegade.util.*
+import renegade.util.Two
 import renegade.util.math.sqr
 
 /**
- * Created by ian on 7/9/17.
+ * Takes two [InputType] values and returns a [Double] representing the distance between them.
+ *
+ * @author ian
  */
 
 open class DistanceModel<in InputType : Any>(model : (Two<InputType>) -> Double) : (Two<InputType>) -> Double by model {

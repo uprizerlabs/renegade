@@ -3,7 +3,7 @@ package renegade.indexes
 import renegade.util.Two
 
 /**
- * Created by ian on 7/4/17.
+ * Store and search for items stored in a defined metric space
  */
 abstract class MetricSpaceIndex<ItemType : Any, DistanceType : Comparable<DistanceType>>(val distanceFunction : (Two<ItemType>) -> DistanceType) {
     abstract fun searchFor(item : ItemType) : Sequence<out Result<ItemType, DistanceType>>

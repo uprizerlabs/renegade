@@ -1,7 +1,7 @@
 package renegade.crossValidation
 
-import renegade.util.math.random
 import mu.KotlinLogging
+import renegade.util.math.random
 import java.util.*
 import kotlin.coroutines.experimental.buildSequence
 
@@ -12,7 +12,6 @@ class SimpleSplitStrategy<InputType : Any, OutputType : Any>(val testProp: Doubl
         return buildSequence {
             val training = ArrayList<InputOutputPair<InputType, OutputType>>()
             val testing = ArrayList<InputOutputPair<InputType, OutputType>>()
-            logger.info("Testing ${training.size} items against ${testing.size} items")
             data.forEach({ datum ->
                 if (random.nextDouble() < testProp) {
                     testing += datum
@@ -20,11 +19,12 @@ class SimpleSplitStrategy<InputType : Any, OutputType : Any>(val testProp: Doubl
                     training += datum
                 }
             })
+            logger.info("Testing ${training.size} items against ${testing.size} items")
             yield(TrainTest(training, testing))
 
         }
     }
-
+}
 
     class FoldSplitStrategy<InputType : Any, OutputType : Any>(private val folds: Int, private val limit: Int? = null) : SplitStrategy<InputType, OutputType> {
         private val largePrimeNumber = 10007
@@ -51,4 +51,3 @@ class SimpleSplitStrategy<InputType : Any, OutputType : Any>(val testProp: Doubl
 
         private fun hashToFold(datum: InputOutputPair<InputType, OutputType>) = Math.abs(datum.hashCode()).rem(largePrimeNumber).rem(folds)
     }
-}
