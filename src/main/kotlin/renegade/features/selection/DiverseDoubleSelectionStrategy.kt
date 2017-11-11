@@ -2,16 +2,33 @@ package renegade.features.selection
 
 import java.util.*
 
-class DiverseDoubleSelectionStrategy<SelectionType : Any> : SelectionStrategy<SelectionType> {
-    private data class LowerHigherDistance(var lower : Double, var higher : Double)
+/**
+ * Selects a double on the ring that is either closest or furthest from previously reported values.
+ *
+ * Furthest could be attempted - successes.  Closest could be successes-attempted.
+ */
+class DoubleSelectionStrategy(val type : SelectionStrategy.Type) : SelectionStrategy<Double> {
 
-    private val values : SortedMap<Double, LowerHigherDistance> = TreeMap()
+    private val values = TreeSet<Double>()
 
-    override fun report(selection: SelectionType) {
-
+    override fun report(selection: Double) {
+        values += selection
     }
 
-    override fun choose(): SelectionType {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun choose(): Double {
+        when (type) {
+            SelectionStrategy.Type.NOVEL -> {
+                var pval : Double? = null
+                for (value in values) {
+                    if (pval != null) {
+
+                    }
+                }
+            }
+            SelectionStrategy.Type.FAMILIAR -> {
+
+            }
+        }
+        TODO()
     }
 }

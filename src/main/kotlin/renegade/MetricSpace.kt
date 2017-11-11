@@ -14,7 +14,7 @@ import renegade.util.math.sqr
 class MetricSpace<InputType : Any, OutputType : Any>(
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
         val trainingData: List<Pair<InputType, OutputType>>,
-        val maxSamples: Int = Math.min(10_000, Iterables.size(trainingData).sqr).toInt(),
+        val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
         val learningRate: Double = 0.1, val maxIterations: Int? = null,
         val outputDistance: (OutputType, OutputType) -> Double) : (Two<InputType>) -> Double {
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)
@@ -37,7 +37,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         }
 
         val distanceModelList = modelBuilders.map({ modelBuilder -> modelBuilder.build(distancePairs, 1.0 / modelBuilders.size) })
-        logger.info("${distanceModelList.size} modelBuilders distanceModelList built.")
+        logger.info("${distanceModelList.size} modelBuilders built.")
 
 
         return if (distanceModelList.size > 1) {
@@ -52,9 +52,12 @@ class MetricSpace<InputType : Any, OutputType : Any>(
                 rmsesByIteration += modelsRMSE
                 val modelsAscendingByContribution = determiningOrdering(refiner)
                 for (toRefine in modelsAscendingByContribution) {
-                    refiner.refineModel(toRefine.index)
-                    val contributionAfterRefinement = refiner.modelTotalAvgAbsContribution(toRefine.index)
-                    logger.debug("Refined model #${toRefine.index}, contribution ${toRefine.contribution} -> $contributionAfterRefinement")
+                    val modelIx = toRefine.index
+                    refiner.refineModel(modelIx)
+                    val contributionAfterRefinement = refiner.modelTotalAvgAbsContribution(modelIx)
+                    val label = modelBuilders[modelIx].label
+                    val modelName = if (label == null) modelIx.toString() else "$label:$modelIx"
+                    logger.info("Refined model #$modelName, contribution ${toRefine.contribution} -> $contributionAfterRefinement")
                 }
                 if (shouldTerminate(iteration, rmsesByIteration)) break
                 iteration++

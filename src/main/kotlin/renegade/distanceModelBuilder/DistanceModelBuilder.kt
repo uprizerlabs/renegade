@@ -30,7 +30,7 @@ abstract class DistanceModelBuilder<InputType : Any>(open val label: String?) {
     }
 
     fun <SourceType : Any>
-            map(mapper: (SourceType) -> InputType) = map(null, mapper)
+            map(mapper: (SourceType) -> InputType) = map(label, mapper)
 
     fun <SourceType : Any>
             map(label: String? = null,

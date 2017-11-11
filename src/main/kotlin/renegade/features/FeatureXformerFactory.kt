@@ -12,6 +12,7 @@ Types of feature search strategy:
      distributions this shouldn't be necessary - just choose numbers that are as distant as possible
      from numbers already selected - perhaps works if numbers are considered in a circular 1D space,
      then we just pick the number at random but limited to within the largest gap
+   * Or, combine "familiarity" search with novelty search using a thompson sampling meta selection strategy
  * Input feature
  * Function application on 1 or two existing features, can have global meta-selection strategy or
  *   per function meta-selection strategy, and choose between them using another meta-selection strategy.
@@ -24,7 +25,8 @@ Types of feature search strategy:
 
  * Pentius specific:
    * Sequence prediction is a generalization of the feature search strategies that can be applied to solve
-   * Pentius's problem.
+     Pentius's problem.
+   * Create distance extractors and features parameterized (like closest match to X to time - Y)
 
  Business model
  * LGPL the code to execute the Renegade model (where new data can be added), but keep the code to build
@@ -40,6 +42,7 @@ Types of feature search strategy:
  *
  * Does this allow GPL'ing of main codebase?
  *
+ * Could this be a pareto optimal business model?
  */
 
 interface FeatureXformerFactory {

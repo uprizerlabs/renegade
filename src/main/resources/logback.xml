@@ -16,7 +16,7 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="renegade.MetricSpace" level="info">
+    <logger name="renegade.MetricSpace" level="debug">
     </logger>
 
 </configuration>
