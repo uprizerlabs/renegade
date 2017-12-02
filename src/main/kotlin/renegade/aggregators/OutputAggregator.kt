@@ -20,3 +20,9 @@ interface OutputAggregator<ItemType, SummaryType, PredictionType> {
 
 }
 
+data class Weighted<ItemType>(val item : ItemType, val weight : Double = 1.0) {
+
+}
+
+interface WeightedOutputAggregator<ItemType, SummaryType, PredictionType>
+    : OutputAggregator<Weighted<ItemType>, SummaryType, PredictionType>

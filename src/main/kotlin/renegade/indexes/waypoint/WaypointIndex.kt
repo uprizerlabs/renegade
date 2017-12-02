@@ -1,10 +1,9 @@
 package renegade.indexes.waypoint
 
+import mu.KotlinLogging
 import renegade.indexes.MetricSpaceIndex
 import renegade.util.*
 import renegade.util.math.distanceTo
-import mu.KotlinLogging
-import java.util.concurrent.ConcurrentHashMap
 
 class WaypointIndex<ItemType : Any>(
         distance: (Two<ItemType>) -> Double,
@@ -28,7 +27,8 @@ class WaypointIndex<ItemType : Any>(
     }
 
     private val waypoints = waypoints.map { Waypoint(it)}
-    private val itemVectors = ConcurrentHashMap<ItemType, List<Double>>()
+    // TODO: Not threadsafe, but faster
+    private val itemVectors = HashMap<ItemType, List<Double>>()
 
     override fun searchFor(soughtItem: ItemType): Sequence<WaypointIndexResult<ItemType>> {
 

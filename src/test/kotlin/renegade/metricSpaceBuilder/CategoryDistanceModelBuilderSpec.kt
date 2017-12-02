@@ -1,11 +1,11 @@
 package renegade.metricSpaceBuilder
 
-import renegade.distanceModelBuilder.InputDistance
-import renegade.distanceModelBuilder.inputTypes.IdentityDistanceModelBuilder
-import renegade.util.*
-import renegade.util.math.random
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
+import renegade.distanceModelBuilder.InputDistance
+import renegade.distanceModelBuilder.inputTypes.CategoryDistanceModelBuilder
+import renegade.util.Two
+import renegade.util.math.random
 
 /**
  * Created by ian on 7/10/17.
@@ -13,7 +13,7 @@ import io.kotlintest.specs.FreeSpec
 class CategoryDistanceModelBuilderSpec : FreeSpec() {
     init {
         "given an IdentityDistanceModelBuilder" - {
-            val dmb = IdentityDistanceModelBuilder()
+            val dmb = CategoryDistanceModelBuilder()
             "given sample data for an Int input where output distance is 0 if they're within 2, 1 otherwise" - {
                 val sampleData = ArrayList<InputDistance<Any>>()
                 for (ix in 0..1000) {

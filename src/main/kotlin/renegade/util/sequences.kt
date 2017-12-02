@@ -23,17 +23,19 @@ fun <T, C : Comparable<C>> Sequence<Prioritized<T, C>>.priorityBuffer(bufferSize
     }
 }
 
-fun <K> Sequence<K>.lookAheadHighest(lookAhead: Int = 5, valueExtractor: (K) -> Double): IndexedValue<K>? {
-    return this.lookAheadLowest(lookAhead = lookAhead, valueExtractor = { -valueExtractor(it) })
+fun <K> Sequence<K>.lookAheadHighest(lookAhead: Int = 5, minimum : Int = 0, valueExtractor: (K) -> Double): IndexedValue<K>? {
+    return this.lookAheadLowest(lookAhead = lookAhead, minimum = minimum, valueExtractor = { -valueExtractor(it) })
 }
 
-fun <K> Sequence<K>.lookAheadLowest(lookAhead: Int = 5, valueExtractor: (K) -> Double): IndexedValue<K>? {
+fun <K> Sequence<K>.lookAheadLowest(lookAhead: Int = 5, minimum : Int = 0, valueExtractor: (K) -> Double): IndexedValue<K>? {
     var best: IndexedValue<Pair<K, Double>>? = null
     for (valWithIndex in this.withIndex()) {
         if (best != null && valWithIndex.index - best.index > lookAhead) break
         val thisVal = valueExtractor(valWithIndex.value)
-        if (best == null || best.value.second > thisVal) {
-            best = IndexedValue(valWithIndex.index, valWithIndex.value to thisVal)
+        if (valWithIndex.index >= minimum) {
+            if (best == null || best.value.second > thisVal) {
+                best = IndexedValue(valWithIndex.index, valWithIndex.value to thisVal)
+            }
         }
     }
     return if (best != null) IndexedValue(best.index, best.value.first) else null

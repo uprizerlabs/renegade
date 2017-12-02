@@ -9,7 +9,7 @@ import renegade.util.math.sqr
  * @author ian
  */
 
-open class DistanceModel<in InputType : Any>(model : (Two<InputType>) -> Double) : (Two<InputType>) -> Double by model {
+open class DistanceModel<in InputType : Any?>(model : (Two<InputType>) -> Double) : (Two<InputType>) -> Double by model {
 
     fun rmse(data: InputDistances<InputType>): Double {
         val distanceModel = this

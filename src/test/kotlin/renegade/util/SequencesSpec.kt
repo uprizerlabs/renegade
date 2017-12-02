@@ -54,13 +54,13 @@ class SequencesSpec : FreeSpec() {
         }
         "lookAheadLowest" {
             val sequence = sequenceOf(5, 4, 5, 5, 5, 1)
-            val result = sequence.lookAheadLowest(2, {it.toDouble()})
+            val result = sequence.lookAheadLowest(lookAhead = 2, valueExtractor = {it.toDouble()})
             result?.index shouldBe 1
             result?.value shouldBe 4
         }
         "lookAheadHighest" {
             val sequence = sequenceOf(5, 7, 5, 5, 5, 8)
-            val result = sequence.lookAheadHighest(2, {it.toDouble()})
+            val result = sequence.lookAheadHighest(lookAhead = 2, valueExtractor = {it.toDouble()})
             result?.index shouldBe 1
             result?.value shouldBe 7
         }
