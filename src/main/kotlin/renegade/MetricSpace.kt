@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import renegade.distanceModelBuilder.*
 import renegade.util.*
 import renegade.util.math.sqr
+import java.util.*
 
 /**
  * Created by ian on 7/3/17.
@@ -24,9 +25,14 @@ class MetricSpace<InputType : Any, OutputType : Any>(
     fun estimateDistance(inputs: Two<InputType>): Double
             = this.distanceModelList.estimate(inputs)
 
-    val distanceModelList = buildRelevanceModels()
+    val distanceModelList: List<DistanceModel<InputType>> = buildRelevanceModels()
+
+    // TODO: Clean up how we introspect on how the MetricSpace is built, this is ugly
+    lateinit var modelContributions : TreeMap<Int, TreeMap<Int, Double>>
 
     private fun buildRelevanceModels(): List<DistanceModel<InputType>> {
+        modelContributions = TreeMap()
+
         require(modelBuilders.isNotEmpty(), { "Must have at least one modelBuilders regressor" })
         require(trainingData.isNotEmpty(), { "Must have at least one training instance" })
 
@@ -51,6 +57,11 @@ class MetricSpace<InputType : Any, OutputType : Any>(
                 logger.info("Iteration #$iteration, RMSE: $modelsRMSE")
                 rmsesByIteration += modelsRMSE
                 val modelsAscendingByContribution = determiningOrdering(refiner)
+                for ((index, contribution) in modelsAscendingByContribution) {
+                    val modelContributions = modelContributions.computeIfAbsent(iteration, { TreeMap() })
+                    assert(!modelContributions.containsKey(index))
+                    modelContributions.put(index, contribution)
+                }
                 for (toRefine in modelsAscendingByContribution) {
                     val modelIx = toRefine.index
                     refiner.refineModel(modelIx)
