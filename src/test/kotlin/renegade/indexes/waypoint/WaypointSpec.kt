@@ -1,9 +1,8 @@
 package renegade.indexes.waypoint
 
-import renegade.approx
-import renegade.util.Two
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec
+import renegade.approx
 
 class WaypointSpec : FreeSpec() {
     init {
@@ -13,15 +12,14 @@ class WaypointSpec : FreeSpec() {
                 waypoint.item shouldBe 5
             }
             "add() and closest() work as expected" {
-                val distFunc = {(a, b) : Two<Int> -> Math.abs(a-b).toDouble()}
-                waypoint.add(distFunc(Two(5, 8)), 8)
-                waypoint.add(distFunc(Two(5, 9)), 9)
+                waypoint.add(3.0, 8)
+                waypoint.add(4.0, 9)
                 val results = waypoint.closestTo(3.0).toList()
                 results.size shouldBe 2
-                results[0].first shouldBe 8
-                results[0].second shouldBe approx(3.0)
-                results[1].first shouldBe 9
-                results[1].second shouldBe approx(4.0)
+                results[0].item shouldBe 8
+                results[0].distance shouldBe approx(0.0)
+                results[1].item shouldBe 9
+                results[1].distance shouldBe approx(1.0)
             }
         }
     }
