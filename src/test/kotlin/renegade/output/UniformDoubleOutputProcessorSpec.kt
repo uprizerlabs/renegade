@@ -25,7 +25,7 @@ class UniformDoubleOutputProcessorSpec : FreeSpec() {
                 "test 1.0" {
                     val weighted = udop.invoke(1.0)
                     weighted.item shouldBe approx(1.0)
-                    weighted.weight shouldBe approx(2.0/3.0)
+                    weighted.weight shouldBe approx(1.0/3.0)
                 }
                 "test 1.5" {
                     val weighted = udop.invoke(1.5)

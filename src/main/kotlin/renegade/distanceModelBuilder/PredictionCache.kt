@@ -30,8 +30,10 @@ class PredictionCache(private val modelCount : Int, private val pairCount : Int)
 
     fun getAbsContributionTotal(modelIx : Int) = absContributionTotals[modelIx]
 
+    fun getAverageContribution(modelIx : Int)  = absContributionTotals[modelIx] / predictions.size
+
     fun getPrediction(pairIx : Int) = predictions[pairIx]
 
     fun getPredictionWithoutContribution(pairIx : Int, modelIx : Int)
-            = getPrediction(pairIx) - getContribution(pairIx, modelIx)
+            = getPrediction(pairIx) - getContribution(pairIx, modelIx)// + getAverageContribution(modelIx)
 }

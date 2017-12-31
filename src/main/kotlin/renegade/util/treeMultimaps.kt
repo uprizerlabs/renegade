@@ -7,7 +7,7 @@ import kotlin.coroutines.experimental.buildSequence
  * Return values in a TreeMultimap starting with the closest to [key] and progressively
  * getting further away.
  */
-fun <V> TreeMultimap<Double, V>.closestTo(key : Double) : Sequence<Pair<V, Double>> {
+fun <ItemType> TreeMultimap<Double, ItemType>.closestTo(key : Double) : Sequence<CloseItem<ItemType>> {
     val headIterator = asMap().descendingMap().tailMap(key, false).iterator()
     val tailIterator = asMap().tailMap(key).iterator()
     return buildSequence {
@@ -18,19 +18,19 @@ fun <V> TreeMultimap<Double, V>.closestTo(key : Double) : Sequence<Pair<V, Doubl
                 val headDiff = lastHead.key diff key
                 val tailDiff = lastTail.key diff key
                 if (headDiff < tailDiff) {
-                    yieldAll(lastHead.value.map {it to headDiff})
+                    yieldAll(lastHead.value.map { CloseItem(it, headDiff)})
                     lastHead = if (headIterator.hasNext()) headIterator.next() else null
                 } else {
-                    yieldAll(lastTail.value.map {it to tailDiff})
+                    yieldAll(lastTail.value.map { CloseItem(it, tailDiff)})
                     lastTail = if (tailIterator.hasNext()) tailIterator.next() else null
                 }
             } else if (lastHead != null) {
                 val headDiff = lastHead.key diff key
-                yieldAll(lastHead.value.map {it to headDiff})
+                yieldAll(lastHead.value.map { CloseItem(it, headDiff)})
                 lastHead = if (headIterator.hasNext()) headIterator.next() else null
             } else if (lastTail != null) {
                 val tailDiff = lastTail.key diff key
-                yieldAll(lastTail.value.map {it to tailDiff})
+                yieldAll(lastTail.value.map { CloseItem(it, tailDiff)})
                 lastTail = if (tailIterator.hasNext()) tailIterator.next() else null
             } else {
                 break
@@ -39,5 +39,7 @@ fun <V> TreeMultimap<Double, V>.closestTo(key : Double) : Sequence<Pair<V, Doubl
     }
 
 }
+
+data class CloseItem<out ItemType>(val item : ItemType, val distance : Double)
 
 infix fun Double.diff(a : Double) = Math.abs(a-this)

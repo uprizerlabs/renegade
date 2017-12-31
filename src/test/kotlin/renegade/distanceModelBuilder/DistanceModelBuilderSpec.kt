@@ -60,7 +60,7 @@ class DistanceModelBuilderSpec : FreeSpec() {
                 }
             }
         }
-        "given an IdentityDistanceModelBuilder" - {
+        "given an CategoryDistanceModelBuilder" - {
             val dmb = CategoryDistanceModelBuilder()
             "given sample data for an Int input where output distance is 0 if they're within 2, 1 otherwise" - {
                 val sampleData = ArrayList<InputDistance<Any>>()
@@ -70,12 +70,14 @@ class DistanceModelBuilderSpec : FreeSpec() {
                 }
                 // Disabled because CategoryDistanceModelBuilder was modified to only recognize equality versus
                 // inequality.
-                "build a distance model with output scale" {
+                /*
+                "build a distance model with output scale" - {
                     var distanceModel = dmb.build(sampleData, 0.4)
                     "verify average default for unseen inputs adjusted by scale" {
                         distanceModel.invoke(Two(9, 9)) shouldBe ((0.2 * 0.4).plusOrMinus(0.02))
                     }
-                }.config(enabled = false)
+                }
+                */
             }
         }
     }

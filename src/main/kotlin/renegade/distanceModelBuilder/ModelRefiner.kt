@@ -1,6 +1,6 @@
 package renegade.distanceModelBuilder
 
-import mu.KotlinLogging
+import mu.*
 import renegade.util.math.*
 
 /**
@@ -42,10 +42,12 @@ class ModelRefiner<InputType : Any>(
     fun modelTotalAvgAbsContribution(modelIx : Int) = predictions.getAbsContributionTotal(modelIx)
 
     fun refineModel(modelIx: Int) {
-        logger.debug("Refining model $modelIx")
-        val predictionsExcludingModel = predictionsExcludingModel(modelIx)
-        val refinedModel = modelBuilders[modelIx].build(predictionsExcludingModel)
-        updateModel(modelIx, refinedModel)
+        withLoggingContext("model" to modelIx.toString()) {
+            logger.debug("Refining model $modelIx")
+            val predictionsExcludingModel = predictionsExcludingModel(modelIx)
+            val refinedModel = modelBuilders[modelIx].build(predictionsExcludingModel)
+            updateModel(modelIx, refinedModel)
+        }
     }
 
     internal fun predictionsExcludingModel(modelIxToExclude: Int): InputDistances<InputType> {

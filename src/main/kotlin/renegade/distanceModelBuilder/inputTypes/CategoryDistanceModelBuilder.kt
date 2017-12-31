@@ -3,19 +3,20 @@ package renegade.distanceModelBuilder.inputTypes
 import renegade.distanceModelBuilder.*
 import renegade.util.math.AveragingAccumulator
 
-class CategoryDistanceModelBuilder(override val label : String? = null) : DistanceModelBuilder<Any>(label) {
-    /* FIXME: even with minCount this is very likely to overfit, which we cannot allow for DMBs, so
-     *        for now set to MAX_VALUE to disable cross-category records.
-     *
-     * Should we be using different random samplings of the distance pairs in some way that prevents
-     * overfitting?
-     *
-     * YES - we
-     *
-     * OR - do we just need to limit DMBs to regression types that can't overfit, like PAV?
-     */
+/* FIXME: even with minCount this is very likely to overfit, which we cannot allow for DMBs, so
+ *        for now set to MAX_VALUE to disable cross-category records.
+ *
+ * Should we be using different random samplings of the distance pairs in some way that prevents
+ * overfitting?
+ *
+ * YES - we
+ *
+ * OR - do we just need to limit DMBs to regression types that can't overfit, like PAV?
+ */
 
-    private val minCount = 100
+private const val minCount = 100
+
+class CategoryDistanceModelBuilder(override val label : String? = null) : DistanceModelBuilder<Any>(label) {
 
     override fun build(trainingData: InputDistances<Any>) : DistanceModel<Any> {
         val equalityScores = trainingData

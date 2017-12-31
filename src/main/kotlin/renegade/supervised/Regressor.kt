@@ -16,9 +16,13 @@ private val logger = KotlinLogging.logger {}
 fun <InputType: Any> Regressor(
         trainingData : List<Pair<InputType, Double>>,
         distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>,
-        balanceOutput: Boolean = true,
+        balanceOutput: Boolean = false,
         minimumInsetSize : Int = 100
 ) : Regressor<InputType> {
+    if (balanceOutput) {
+        TODO("")
+    }
+
     logger.info("Building metric space")
     val metricSpace = MetricSpace(
             modelBuilders = distanceModelBuilders,
