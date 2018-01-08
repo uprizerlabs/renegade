@@ -1,8 +1,8 @@
 package renegade.distanceModelBuilder
 
-import renegade.approx
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
+import renegade.approx
 
 class PredictionCacheSpec : FreeSpec() {
     init {
@@ -37,6 +37,8 @@ class PredictionCacheSpec : FreeSpec() {
             cache.getPrediction(pairIx = 1) shouldBe approx(0.4+0.7)
             cache.getAbsContributionTotal(modelIx = 0) shouldBe approx(1.0)
             cache.getAbsContributionTotal(modelIx = 1) shouldBe approx(0.9)
+            cache.getAverageContribution(0) shouldBe approx((-0.6 + 0.4) / 2.0)
+
         }
     }
 }

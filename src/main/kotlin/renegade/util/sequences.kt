@@ -41,6 +41,15 @@ fun <K> Sequence<K>.lookAheadLowest(lookAhead: Int = 5, minimum : Int = 0, value
     return if (best != null) IndexedValue(best.index, best.value.first) else null
 }
 
+class TrainTest<E>(val train: List<E>, val test: List<E>)
+
+fun <E : Any> Sequence<E>.splitTrainTest(testEvery: Int): TrainTest<E> {
+    require(testEvery > 0)
+
+    val grouped = this.withIndex().groupBy { it.index % testEvery == 0 }.mapValues { it.value.map { it.value } }
+    return TrainTest(grouped[false] ?: emptyList(), grouped[true] ?: emptyList())
+}
+
 fun <K> Sequence<K>.toPairSequence() : Sequence<Pair<K, K>> {
     val previousValues = ArrayList<K>()
     return buildSequence {

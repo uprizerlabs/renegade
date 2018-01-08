@@ -20,13 +20,13 @@ class ModelRefiner<InputType : Any>(
 
     private val logger = KotlinLogging.logger {}
 
-    private val predictions = PredictionCache(initialModels.size, pairs.size)
+    private val predictionCache = PredictionCache(initialModels.size, pairs.size)
 
     private val currentModels = ArrayList(initialModels)
 
     init {
         pairs.withIndex().forEach { (index, pair) ->
-            predictions.updateContributions(index) { modelIx ->
+            predictionCache.updateContributions(index) { modelIx ->
                 initialModels[modelIx].invoke(pair.inputs)
             }
         }
@@ -36,10 +36,10 @@ class ModelRefiner<InputType : Any>(
 
     fun calculateRMSE(): Double
             = pairs.withIndex().map { pair ->
-        (pair.value.dist - predictions.getPrediction(pair.index)).sqr
+        (pair.value.dist - predictionCache.getPrediction(pair.index)).sqr
     }.average().sqrt
 
-    fun modelTotalAvgAbsContribution(modelIx : Int) = predictions.getAbsContributionTotal(modelIx)
+    fun modelTotalAvgAbsContribution(modelIx : Int) = predictionCache.getAbsContributionTotal(modelIx)
 
     fun refineModel(modelIx: Int) {
         withLoggingContext("model" to modelIx.toString()) {
@@ -50,12 +50,14 @@ class ModelRefiner<InputType : Any>(
         }
     }
 
+    fun averageModelPrediction(modelIx : Int) = predictionCache.getAverageContribution(modelIx)
+
     internal fun predictionsExcludingModel(modelIxToExclude: Int): InputDistances<InputType> {
         return pairs.withIndex().map { (pairIx, pair) ->
-            val predictedDist = predictions.getPredictionWithoutContribution(pairIx, modelIxToExclude)
+            val predictedDist = predictionCache.getPredictionWithoutContribution(pairIx, modelIxToExclude)
             val actualDist = pair.dist
             val delta = actualDist - predictedDist
-            val previousPrediction = predictions.getContribution(pairIx, modelIxToExclude)
+            val previousPrediction = predictionCache.getContribution(pairIx, modelIxToExclude)
             val updated = (delta * learningRate) + (previousPrediction * (1.0 - learningRate))
             InputDistance(pair.inputs, updated)
         }.toList()
@@ -64,7 +66,7 @@ class ModelRefiner<InputType : Any>(
     @Synchronized internal fun updateModel(modelIx: Int, newModel: DistanceModel<InputType>) {
         pairs
                 .map { newModel.invoke(it.inputs) }
-                .forEachIndexed { pairIx, newContribution -> predictions.updateContribution(pairIx, modelIx, newContribution) }
+                .forEachIndexed { pairIx, newContribution -> predictionCache.updateContribution(pairIx, modelIx, newContribution) }
         currentModels[modelIx] = newModel
     }
 }

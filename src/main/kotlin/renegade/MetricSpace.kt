@@ -11,6 +11,7 @@ import java.util.*
  * Created by ian on 7/3/17.
  */
 
+// TODO: support feature activation / deactivation and then verify that each individual feature leads to a metric improvement
 
 class MetricSpace<InputType : Any, OutputType : Any>(
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
@@ -36,18 +37,22 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         require(modelBuilders.isNotEmpty(), { "Must have at least one modelBuilders regressor" })
         require(trainingData.isNotEmpty(), { "Must have at least one training instance" })
 
-        val distancePairs = InputPairSampler(trainingData, outputDistance).sample(maxSamples)
+        val distancePairs = InputPairSampler(trainingData, outputDistance).sample(maxSamples).asSequence().splitTrainTest(2)
 
-        distancePairs.map {it.dist}.average().let {averageDistance ->
-            logger.info("Average distance of distance pairs is $averageDistance")
+        distancePairs.train.map {it.dist}.average().let {averageDistance ->
+            logger.info("Average distance of training distance pairs is $averageDistance")
         }
 
-        val distanceModelList = modelBuilders.map({ modelBuilder -> modelBuilder.build(distancePairs, 1.0 / modelBuilders.size) })
+        distancePairs.test.map {it.dist}.average().let {averageDistance ->
+            logger.info("Average distance of testing distance pairs is $averageDistance")
+        }
+
+
+        val distanceModelList = modelBuilders.map({ modelBuilder -> modelBuilder.build(distancePairs.train, 1.0 / modelBuilders.size) })
         logger.info("${distanceModelList.size} modelBuilders built.")
 
-
         return if (distanceModelList.size > 1) {
-            val refiner = ModelRefiner(distanceModelList, modelBuilders, distancePairs, learningRate)
+            val refiner = ModelRefiner(distanceModelList, modelBuilders, distancePairs.train, learningRate)
 
             val rmsesByIteration = ArrayList<Double>()
 
@@ -56,7 +61,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
                 val modelsRMSE = refiner.calculateRMSE()
                 logger.info("Iteration #$iteration, RMSE: $modelsRMSE")
                 rmsesByIteration += modelsRMSE
-                val modelsAscendingByContribution = determiningOrdering(refiner)
+                val modelsAscendingByContribution = determiningOrdering(refiner, distancePairs.test)
                 for ((index, contribution) in modelsAscendingByContribution) {
                     val modelContributions = modelContributions.computeIfAbsent(iteration, { TreeMap() })
                     assert(!modelContributions.containsKey(index))
@@ -106,16 +111,5 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         }
     }
 
-    private fun determiningOrdering(refiner: ModelRefiner<InputType>): List<IndexContribution> {
-        val modelsAscendingByContribution = refiner.models.indices.map { modelIx ->
-            val contribution = refiner.modelTotalAvgAbsContribution(modelIx)
-            IndexContribution(modelIx, contribution)
-        }.sortedBy { it.contribution }.toList()
-        return modelsAscendingByContribution
-    }
-
-    private data class IndexContribution(val index: Int, val contribution: Double)
 
 }
-
-private fun <X> List<X>.secondLast() = this[this.size - 2]
