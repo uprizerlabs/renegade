@@ -14,15 +14,20 @@ fun <InputType: Any> Regressor(
         trainingData : List<Pair<InputType, Double>>,
         distanceModelBuilders : ArrayList<DistanceModelBuilder<InputType>>
 ) : Regressor<InputType> {
-    val metricSpace = MetricSpace(
-            modelBuilders = distanceModelBuilders,
-            trainingData = trainingData,
-            outputDistance = {a, b -> abs(a-b) }
-    )
+    val metricSpace = buildMetricSpace(trainingData, distanceModelBuilders)
     val distFunc: (Two<Pair<InputType, Double?>>) -> Double = { metricSpace.estimateDistance(Two(it.first.first, it.second.first)) }
     val msi = WaypointIndex<Pair<InputType, Double?>>(distFunc, numWaypoints = 8, samples = trainingData)
     msi.addAll(trainingData)
     return Regressor(msi)
+}
+
+fun <InputType : Any> buildMetricSpace(trainingData: List<Pair<InputType, Double>>, distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>): MetricSpace<InputType, Double> {
+    val metricSpace = MetricSpace(
+            modelBuilders = distanceModelBuilders,
+            trainingData = trainingData,
+            outputDistance = { a, b -> abs(a - b) }
+    )
+    return metricSpace
 }
 
 class Regressor<InputType : Any>(
