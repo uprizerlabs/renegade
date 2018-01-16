@@ -19,6 +19,7 @@ fun <InputType: Any> Regressor(
         balanceOutput: Boolean = false,
         minimumInsetSize : Int = 100
 ) : Regressor<InputType> {
+<<<<<<< HEAD
     if (balanceOutput) {
         TODO("")
     }
@@ -30,11 +31,23 @@ fun <InputType: Any> Regressor(
             outputDistance = {a, b -> abs(a-b) }
     )
     logger.info("Building waypoint index")
+=======
+    val metricSpace = buildMetricSpace(trainingData, distanceModelBuilders)
+>>>>>>> master
     val distFunc: (Two<Pair<InputType, Double?>>) -> Double = { metricSpace.estimateDistance(Two(it.first.first, it.second.first)) }
     val msi = WaypointIndex<Pair<InputType, Double?>>(distFunc, numWaypoints = 8, samples = trainingData)
     msi.addAll(trainingData)
     logger.info("Regressor built")
     return Regressor(msi, balanceOutput, minimumInsetSize)
+}
+
+fun <InputType : Any> buildMetricSpace(trainingData: List<Pair<InputType, Double>>, distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>): MetricSpace<InputType, Double> {
+    val metricSpace = MetricSpace(
+            modelBuilders = distanceModelBuilders,
+            trainingData = trainingData,
+            outputDistance = { a, b -> abs(a - b) }
+    )
+    return metricSpace
 }
 
 class Regressor<InputType : Any>(

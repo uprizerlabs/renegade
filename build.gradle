@@ -44,9 +44,13 @@ repositories {
 dependencies {
     //compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+<<<<<<< HEAD
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.3'
 
     compile 'com.github.sanity:pairAdjacentViolators:1.4.9'
+=======
+    compile 'com.github.sanity:pairAdjacentViolators:1.4.10'
+>>>>>>> master
     compile group: 'com.google.guava', name: 'guava', version: '23.0'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.1'
