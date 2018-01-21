@@ -3,31 +3,43 @@ package renegade
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics
 import renegade.distanceModelBuilder.*
 
+typealias Contribution = Double
+
 class DistanceModelRanker<out InputType : Any>(private val testPairs: List<InputDistance<InputType>>) {
     fun rank(models: List<DistanceModel<InputType>>): List<IndexScore> {
-        val contributions = calculateContributions(models)
-        val averages = contributions.asSequence().map {it.contributions}.averages()
+        val contributions: List<ContributionsResult> = calculateContributions(models)
+        val averages: List<Contribution> = contributions.asSequence().map {it.contributions}.averages()
+        for ((contributions, result) in contributions) {
+            val accuracy = Math.abs(contributions.sum() - result)
+            for (mIx in models.indices) {
+                val mIxAccuracy = Math.abs((contributions.sum() - contributions[mIx] + averages[mIx]) - result)
+            }
+        }
         TODO()
     }
 
     internal fun calculateContributions(models: List<DistanceModel<InputType>>): List<ContributionsResult> {
-        val contributions = testPairs.asSequence().map { inputDistance ->
-            ContributionsResult(models.map { model -> model.invoke(inputDistance.inputs) }.toDoubleArray(), inputDistance.dist)
+        return testPairs.asSequence().map { inputDistance ->
+            ContributionsResult(
+                    models.map { model -> model(inputDistance.inputs)},
+                    inputDistance.dist
+            )
         }.toList()
-        return contributions
     }
 
     data class IndexScore(val index: Int, val score: Double)
 
-    data class ContributionsResult(val contributions: DoubleArray, val result: Double)
+    data class ContributionsResult(val contributions: List<Contribution>, val result: Double) {
+        val contributionSum get() = contributions.sum()
+    }
 }
 
-internal fun Sequence<DoubleArray>.averages(): DoubleArray {
+internal fun Sequence<List<Contribution>>.averages(): List<Contribution> {
     val stats = Array(this.first().size, { SummaryStatistics() })
     for (ar in this) {
         ar.withIndex().forEach { (ix, c) -> stats[ix].addValue(c) }
     }
-    return stats.map { it.mean }.toDoubleArray()
+    return stats.map { it.mean }
 }
 
 /*
