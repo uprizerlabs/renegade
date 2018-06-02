@@ -1,5 +1,6 @@
 package renegade.util.math
 
+import java.io.Serializable
 import java.util.*
 
 operator fun Number.minus(o : Number) = this.toDouble() - o.toDouble()
@@ -12,7 +13,7 @@ val Double.abs get() = Math.abs(this)
 
 val Double.sqrt get() = Math.sqrt(this)
 
-data class AveragingAccumulator(val sum : Double, val count : Int) {
+data class AveragingAccumulator(val sum : Double, val count : Int) : Serializable {
     constructor() : this(0.0, 0)
 
     val avg = sum/count

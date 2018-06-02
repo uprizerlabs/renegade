@@ -1,9 +1,11 @@
 package renegade
 
-import io.kotlintest.matchers.shouldBe
+import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
-import renegade.distanceModelBuilder.DistanceModel
-import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
+import renegade.distanceModelBuilder.*
+import renegade.util.Two
+import renegade.util.math.random
+import kotlin.math.abs
 
 class DistanceModelRankerSpec : FreeSpec() {
     init {
@@ -16,10 +18,26 @@ class DistanceModelRankerSpec : FreeSpec() {
             }
 
             "calculateContributions()" {
-                val models = ArrayList<DistanceModel<Double>>()
-                models += object : DistanceModel<Double>({(a, b) -> Math.abs(a-b)})
-                models += object : DistanceModel<Double>({(a, b) -> Math.abs(a-b)})
-                
+                data class XY(val x: Double, val y: Double) {
+                    infix fun dist(o : XY) = abs(x-o.x)
+                }
+
+                val inputDistances = (0 .. 1000).map {
+                    val a = XY(random.nextDouble(), random.nextDouble())
+                    val b = XY(random.nextDouble(), random.nextDouble())
+                    InputDistance(Two(a, b), a dist b)
+                }
+
+                val distancedModelRanker = DistanceModelRanker(inputDistances)
+
+                val models = ArrayList<DistanceModel<XY>>()
+                models += DistanceModel { (a, b) -> abs(a.x -b.x)}
+                models += DistanceModel { (_, _) -> 0.0}
+
+                val ranked = distancedModelRanker.rank(models)
+
+                ranked[0].score shouldBe gt(0.0)
+                ranked[1].score shouldBe approx(0.0)
             }
         }
     }

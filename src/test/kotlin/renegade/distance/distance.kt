@@ -1,0 +1,1 @@
+val equalityOutputDistanceMetric: (Any, Any) -> Double = { a, b -> if (a == b) 0.0 else 1.0}

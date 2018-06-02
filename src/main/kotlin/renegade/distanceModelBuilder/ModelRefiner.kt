@@ -13,12 +13,14 @@ import renegade.util.math.*
  * @author ian
  *
  */
+
+private val logger = KotlinLogging.logger {}
+
 class ModelRefiner<InputType : Any>(
         initialModels: List<DistanceModel<InputType>>,
         private val modelBuilders: List<DistanceModelBuilder<InputType>>,
         private val pairs: InputDistances<InputType>, private val learningRate : Double = 1.0) {
 
-    private val logger = KotlinLogging.logger {}
 
     private val predictionCache = PredictionCache(initialModels.size, pairs.size)
 
@@ -27,7 +29,9 @@ class ModelRefiner<InputType : Any>(
     init {
         pairs.withIndex().forEach { (index, pair) ->
             predictionCache.updateContributions(index) { modelIx ->
-                initialModels[modelIx].invoke(pair.inputs)
+                val result = initialModels[modelIx].invoke(pair.inputs)
+                require(result.isFinite(), {"result ($result) must be finite"})
+                result
             }
         }
     }
@@ -36,7 +40,11 @@ class ModelRefiner<InputType : Any>(
 
     fun calculateRMSE(): Double
             = pairs.withIndex().map { pair ->
-        (pair.value.dist - predictionCache.getPrediction(pair.index)).sqr
+        val prediction = predictionCache.getPrediction(pair.index)
+        val actual = pair.value.dist
+        val v = (actual - prediction).sqr
+        require(v.isFinite(), {"Non-finite value while calculating RMSE, prediction: $prediction, actual: $actual"})
+        v
     }.average().sqrt
 
     fun modelTotalAvgAbsContribution(modelIx : Int) = predictionCache.getAbsContributionTotal(modelIx)

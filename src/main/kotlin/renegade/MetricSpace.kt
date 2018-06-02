@@ -5,6 +5,7 @@ import mu.KotlinLogging
 import renegade.distanceModelBuilder.*
 import renegade.util.*
 import renegade.util.math.sqr
+import java.io.Serializable
 import java.util.*
 
 /**
@@ -13,15 +14,17 @@ import java.util.*
 
 // TODO: support feature activation / deactivation and then verify that each individual feature leads to a metric improvement
 
+private val logger = KotlinLogging.logger {}
+
 class MetricSpace<InputType : Any, OutputType : Any>(
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
         val trainingData: List<Pair<InputType, OutputType>>,
         val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
         val learningRate: Double = 0.1, val maxIterations: Int? = null,
-        val outputDistance: (OutputType, OutputType) -> Double) : (Two<InputType>) -> Double {
+        val outputDistance: (OutputType, OutputType) -> Double) : (Two<InputType>) -> Double, Serializable {
+
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)
 
-    private val logger = KotlinLogging.logger {}
 
     fun estimateDistance(inputs: Two<InputType>): Double
             = this.distanceModelList.estimate(inputs)
@@ -61,19 +64,22 @@ class MetricSpace<InputType : Any, OutputType : Any>(
                 val modelsRMSE = refiner.calculateRMSE()
                 logger.info("Iteration #$iteration, RMSE: $modelsRMSE")
                 rmsesByIteration += modelsRMSE
-                val modelsAscendingByContribution = determiningOrdering(refiner, distancePairs.test)
-                for ((index, contribution) in modelsAscendingByContribution) {
-                    val modelContributions = modelContributions.computeIfAbsent(iteration, { TreeMap() })
-                    assert(!modelContributions.containsKey(index))
-                    modelContributions.put(index, contribution)
+                val modelsDescendingByContribution = DistanceModelRanker(distancePairs.test).rank(refiner.models)
+
+                val iterationLog = modelContributions.computeIfAbsent(iteration, { TreeMap() })
+
+                for ((index, score) in modelsDescendingByContribution) {
+                    iterationLog[index] = score
+                    val thisIterationModelContributions = modelContributions.computeIfAbsent(iteration, { TreeMap() })
+                    assert(!thisIterationModelContributions.containsKey(index)) {"thisIterationModelContributions already contains score for model $index for iteration $iteration"}
+                    thisIterationModelContributions[index] = score
                 }
-                for (toRefine in modelsAscendingByContribution) {
+                for (toRefine in modelsDescendingByContribution) {
                     val modelIx = toRefine.index
                     refiner.refineModel(modelIx)
-                    val contributionAfterRefinement = refiner.modelTotalAvgAbsContribution(modelIx)
                     val label = modelBuilders[modelIx].label
                     val modelName = if (label == null) modelIx.toString() else "$label:$modelIx"
-                    logger.info("Refined model #$modelName, contribution ${toRefine.contribution} -> $contributionAfterRefinement")
+                    logger.debug("Refined model #$modelName, score: ${toRefine.score}")
                 }
                 if (shouldTerminate(iteration, rmsesByIteration)) break
                 iteration++

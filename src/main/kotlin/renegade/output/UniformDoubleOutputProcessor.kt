@@ -5,7 +5,7 @@ import java.util.*
 import kotlin.collections.MutableMap.MutableEntry
 
 /**
- * Reweights an output value such that output values have a uniform distribution.
+ * Reweights an output score such that output values have a uniform distribution.
  */
 class UniformDoubleOutputProcessor(samples: Sequence<Double>) : OutputProcessor<Double>() {
 
@@ -30,8 +30,8 @@ class UniformDoubleOutputProcessor(samples: Sequence<Double>) : OutputProcessor<
     }
 
     /**
-     * The output value weight is determined to be the estimated "density"
-     * at this value.
+     * The output score weight is determined to be the estimated "density"
+     * at this score.
      */
     override operator fun invoke(origValue: Double): Weighted<Double> {
         val insufficientDataToReweight = valueCounts.size < 2

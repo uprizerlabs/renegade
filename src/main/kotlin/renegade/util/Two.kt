@@ -1,15 +1,17 @@
 package renegade.util
 
+import java.io.Serializable
+
 /**
  * Represents a set of two values (which may be identical)
  */
 
-class Two<out V>(a : V, b : V) {
+class Two<out V>(a : V, b : V) : Serializable {
     private val set = setOf(a, b)
 
-    val first : V get() = set.first()
+    val first = set.first()
 
-    val second : V get() = if (set.size == 1) first else set.last()
+    val second = set.last()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

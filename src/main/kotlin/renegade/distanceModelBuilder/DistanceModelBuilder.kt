@@ -2,6 +2,7 @@ package renegade.distanceModelBuilder
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics
 import renegade.util.Two
+import java.io.Serializable
 import kotlin.reflect.KProperty1
 
 // TODO: Make InputType Any?, and then create a DistanceModelBuilder.nullable() extension
@@ -10,7 +11,7 @@ import kotlin.reflect.KProperty1
 /**
  * Builds DistanceModels based on a list of [InputDistances].
  */
-abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?) {
+abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): Serializable {
 
     abstract fun build(inputDistances: InputDistances<InputType>): DistanceModel<InputType>
 

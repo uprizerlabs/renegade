@@ -37,7 +37,7 @@ class PredictionCacheSpec : FreeSpec() {
             cache.getPrediction(pairIx = 1) shouldBe approx(0.4+0.7)
             cache.getAbsContributionTotal(modelIx = 0) shouldBe approx(1.0)
             cache.getAbsContributionTotal(modelIx = 1) shouldBe approx(0.9)
-            cache.getAverageContribution(0) shouldBe approx((-0.6 + 0.4) / 2.0)
+            cache.getAverageContribution(modelIx = 0) shouldBe approx((0.6 + 0.4) / 2.0)
 
         }
     }

@@ -5,15 +5,15 @@ import renegade.datasets.gen.spiral.Spiral
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 
-class ClassifierSpec : FreeSpec() {
+class SlowClassifierSpec : FreeSpec() {
     init {
         "given generaged spiral data" - {
             val spiralData = Spiral().generate(1000)
-            "and a suitable Classifier" - {
+            "and a suitable buildSlowClassifier" - {
                 val builders = ArrayList<DistanceModelBuilder<List<Double>>>()
                 builders += DoubleDistanceModelBuilder().map {it[0]}
                 builders += DoubleDistanceModelBuilder().map {it[1]}
-                val classifier = Classifier(spiralData, builders)
+                val classifier = buildSlowClassifier(spiralData, builders)
                 "generate prediction" {
                     println()
                 }

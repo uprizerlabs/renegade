@@ -19,17 +19,22 @@ private const val minCount = 100
 class CategoryDistanceModelBuilder(override val label : String? = null) : DistanceModelBuilder<Any>(label) {
 
     override fun build(trainingData: InputDistances<Any>) : DistanceModel<Any> {
+        require(trainingData.isNotEmpty())
+
         val equalityScores = trainingData
             .groupingBy { it.inputs.first == it.inputs.second }
             .fold(AveragingAccumulator(), { accumulator, element -> accumulator + element.dist })
-            val pairScores = trainingData
+
+        val pairScores = trainingData
                     .groupingBy { it.inputs }
                     .fold(AveragingAccumulator(), { accumulator, element -> accumulator + element.dist })
 
-            val globalSum = pairScores.values.map(AveragingAccumulator::sum).sum()
-            val globalCount = pairScores.values.map(AveragingAccumulator::count).sum()
+        val globalSum = pairScores.values.map(AveragingAccumulator::sum).sum()
+        val globalCount = pairScores.values.map(AveragingAccumulator::count).sum()
 
-            return DistanceModel { pair ->
+        require(globalCount > 0)
+
+        return DistanceModel { pair ->
                 val pairScore = pairScores[pair]
                 if (pairScore != null && pairScore.count > minCount) pairScore.avg else {
                     val equalityScore = equalityScores[pair.first == pair.second]

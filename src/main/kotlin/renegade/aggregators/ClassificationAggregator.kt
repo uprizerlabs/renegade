@@ -1,10 +1,17 @@
 package renegade.aggregators
 
 import renegade.util.math.stats.BetaDistribution
+import java.io.Serializable
 
-class ClassificationAggregator<ItemType : Any> : OutputAggregator<ItemType, ClassificationCounter<ItemType>, Map<ItemType, Double>> {
+private const val POPULATION_WEIGHT = 2.0
+
+class ClassificationAggregator<ItemType : Any> : OutputAggregator<ItemType, ClassificationCounter<ItemType>, Map<ItemType, Double>>, Serializable {
     override fun initialize(population: ClassificationCounter<ItemType>?): ClassificationCounter<ItemType> {
-        return ClassificationCounter()
+        val cc = ClassificationCounter<ItemType>()
+        if (population != null) {
+            population.toProbabilityMap().forEach { item, count -> cc.addWithCount(item, count * POPULATION_WEIGHT) }
+        }
+        return cc
     }
 
     override fun aggregate(item: ItemType, summary: ClassificationCounter<ItemType>): ClassificationCounter<ItemType> {
@@ -24,7 +31,7 @@ class ClassificationAggregator<ItemType : Any> : OutputAggregator<ItemType, Clas
         var countMap = of.toCountMap()
         val ttl = of.total
         return population.classes.map { cls ->
-            val clsCount = countMap.getOrElse(cls, { 0 })
+            val clsCount = countMap.getOrElse(cls, { 0.0 })
             BetaDistribution(clsCount + 1.0, ttl + 1.0 - clsCount).stddev
         }.average()
 

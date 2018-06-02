@@ -11,6 +11,7 @@ class PredictionCache(private val modelCount : Int, private val pairCount : Int)
         var sum = 0.0
         for (modelIx in 0 .. (modelCount-1)) {
             val newContribution = predictionGenerator.invoke(modelIx)
+            require(newContribution.isFinite(), {"newContribution ($newContribution) must be finite"})
             sum += newContribution
             val prevContribution = contributions[modelIx][pairIx]
             contributions[modelIx][pairIx] = newContribution
@@ -20,6 +21,7 @@ class PredictionCache(private val modelCount : Int, private val pairCount : Int)
     }
 
     fun updateContribution(pairIx : Int, modelIx : Int, newPred : Double) {
+        require(newPred.isFinite(), {"newPred($newPred) is not finite"})
         val oldPred = contributions[modelIx][pairIx]
         contributions[modelIx][pairIx] = newPred
         predictions[pairIx] += newPred - oldPred

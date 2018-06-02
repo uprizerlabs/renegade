@@ -35,7 +35,7 @@ class SummaryStatisticsAggregatorSpec : FreeSpec() {
                             actual.addValue(a)
                         }
                     }
-                    "compute value stats" {
+                    "compute score stats" {
                         val errorStats = TreeMap<Int, ErrorStat>()
                         for (i in 0..100) {
                             val samples = (0..50).map { random.nextGaussian() * 0.05 + it }.toList()

@@ -1,12 +1,12 @@
 package renegade.indexes.waypoint
 
-import renegade.approx
-import renegade.indexes.*
-import renegade.util.*
-import renegade.util.math.*
 import io.kotlintest.matchers.*
 import io.kotlintest.specs.FreeSpec
 import mu.KotlinLogging
+import renegade.approx
+import renegade.indexes.*
+import renegade.util.Two
+import renegade.util.math.*
 
 class WaypointIndexSpec : FreeSpec() {
 
@@ -18,8 +18,9 @@ class WaypointIndexSpec : FreeSpec() {
             points += Point(1.0, 2.0)
             points += Point(3.0, 1.0)
             "create a WayPointIndex with 2 different waypoints" - {
-                val waypoints = listOf(Point(3.0, 4.0), Point(2.0, 3.0))
-                val waypointIndex = WaypointIndex({ (a, b) : Two<Point> -> a.dist(b)}, waypoints)
+                val waypoints = listOf(Waypoint(Point(3.0, 4.0)), Waypoint(Point(2.0, 3.0)))
+                val waypointIndex = WaypointIndex(
+                        distance = { (a, b): Two<Point> -> a.dist(b) }, waypoints = waypoints)
                 waypointIndex.addAll(points)
                 val point = Point(1.0, 2.0)
                 "test calculateVectorDistance()" {
@@ -27,8 +28,8 @@ class WaypointIndexSpec : FreeSpec() {
                     val result = waypointIndex.calculateVectorDistance(relVector, point)
                     result.item shouldBe point
                     val vectorDistance = result.priority
-                    val w0dist = waypoints[0].dist(point)
-                    val w1dist = waypoints[1].dist(point)
+                    val w0dist = waypoints[0].item.dist(point)
+                    val w1dist = waypoints[1].item.dist(point)
                     val pointVector = listOf(w0dist, w1dist)
                     vectorDistance shouldBe approx(pointVector.distanceTo(relVector))
                 }

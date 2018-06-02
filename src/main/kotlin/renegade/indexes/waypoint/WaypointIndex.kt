@@ -4,20 +4,34 @@ import mu.KotlinLogging
 import renegade.indexes.MetricSpaceIndex
 import renegade.util.*
 import renegade.util.math.distanceTo
+import java.io.Serializable
+
+private val logger = KotlinLogging.logger {}
 
 class WaypointIndex<ItemType : Any>(
-        distance: (Two<ItemType>) -> Double,
-        waypoints: List<ItemType>,
-        private val lookAhead: Int = 100,
-        private val vectorLookAhead: Int = lookAhead * 10
-) : MetricSpaceIndex<ItemType, Double>(distance) {
+        val distance: (Two<ItemType>) -> Double,
+        val waypoints: List<Waypoint<ItemType>>,
+        val lookAhead: Int = 100,
+        val vectorLookAhead: Int = lookAhead * 10
+) : MetricSpaceIndex<ItemType, Double>(distance), Serializable {
 
-    private val logger = KotlinLogging.logger {}
-
-    constructor(distance: (Two<ItemType>) -> Double, numWaypoints: Int, samples: Iterable<ItemType>, lookAhead: Int = 100, vectorLookAhead: Int = lookAhead * 10)
+    constructor(
+            distance: (Two<ItemType>) -> Double,
+            numWaypoints: Int,
+            samples: Iterable<ItemType>,
+            lookAhead: Int = 100,
+            vectorLookAhead: Int = lookAhead * 10
+    )
             : this(
             distance,
-            samples.asSequence().toMutableList().shuffle().take(numWaypoints), lookAhead, vectorLookAhead
+            samples
+                    .asSequence()
+                    .toMutableList()
+                    .shuffle()
+                    .take(numWaypoints)
+                    .map { Waypoint(it) },
+            lookAhead,
+            vectorLookAhead
     )
 
     init {
@@ -26,11 +40,15 @@ class WaypointIndex<ItemType : Any>(
         }
     }
 
-    private val waypoints = waypoints.map { Waypoint(it)}
+    //  private val waypoints = waypoints.map { Waypoint(it)}
     // TODO: Not threadsafe, but faster
     private val itemVectors = HashMap<ItemType, List<Double>>()
 
     override fun searchFor(soughtItem: ItemType): Sequence<WaypointIndexResult<ItemType>> {
+
+        if (waypoints.first().items().isEmpty()) {
+            logger.warn("Searching an empty WaypointIndex, did you forget to add items to it?")
+        }
 
         data class WaypointWithDistance(val ix: Int, val waypoint: ItemType, val distance: Double)
 

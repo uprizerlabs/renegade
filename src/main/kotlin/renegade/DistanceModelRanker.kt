@@ -2,29 +2,42 @@ package renegade
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics
 import renegade.distanceModelBuilder.*
+import kotlin.math.abs
 
 typealias Contribution = Double
 
 class DistanceModelRanker<out InputType : Any>(private val testPairs: List<InputDistance<InputType>>) {
     fun rank(models: List<DistanceModel<InputType>>): List<IndexScore> {
-        val contributions: List<ContributionsResult> = calculateContributions(models)
-        val averages: List<Contribution> = contributions.asSequence().map {it.contributions}.averages()
-        for ((contributions, result) in contributions) {
-            val accuracy = Math.abs(contributions.sum() - result)
-            for (mIx in models.indices) {
-                val mIxAccuracy = Math.abs((contributions.sum() - contributions[mIx] + averages[mIx]) - result)
+        val contributionsSequence = calculateContributions(models).toList()
+        val averages: List<Contribution> = contributionsSequence.map { it.contributions }.asSequence().averages()
+        val modelValueStat = ArrayList<SummaryStatistics>()
+        (0 until models.size).forEach { modelValueStat += SummaryStatistics() }
+        for ((contributions, result) in contributionsSequence) {
+            val prediction = contributions.sum()
+            val accuracyLoss = Math.abs(prediction - result)
+            for (leaveOutIx in models.indices) {
+                val ixContribution = contributions[leaveOutIx]
+                val ixAverage = averages[leaveOutIx]
+                val leftOutPrediction = prediction - ixContribution + ixAverage
+                val accuracyLossWithoutLeaveOutIx = abs(leftOutPrediction - result)
+                val modelValue = accuracyLossWithoutLeaveOutIx - accuracyLoss
+                modelValueStat[leaveOutIx].addValue(modelValue)
             }
         }
-        TODO()
+        return modelValueStat
+                .withIndex()
+                .map { (ix, ss) ->
+                    IndexScore(ix, ss.mean)
+                }.sortedByDescending { it.score }
     }
 
-    internal fun calculateContributions(models: List<DistanceModel<InputType>>): List<ContributionsResult> {
+    internal fun calculateContributions(models: List<DistanceModel<InputType>>): Sequence<ContributionsResult> {
         return testPairs.asSequence().map { inputDistance ->
             ContributionsResult(
                     models.map { model -> model(inputDistance.inputs)},
                     inputDistance.dist
             )
-        }.toList()
+        }
     }
 
     data class IndexScore(val index: Int, val score: Double)

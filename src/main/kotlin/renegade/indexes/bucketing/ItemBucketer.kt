@@ -4,11 +4,11 @@ import renegade.util.Two
 import java.io.Serializable
 import java.util.*
 
-class ItemBucketer<ItemType : Serializable, in DistanceType : Comparable<DistanceType>>(
+class ItemBucketer<ItemType : Any, in DistanceType : Comparable<DistanceType>>(
         private val distanceFunction: (Two<ItemType>) -> DistanceType,
         samples: Collection<ItemType>,
         private val bits : Int = 8
-) {
+) : Serializable {
 
     val waypointPairs = samples.shuffled().take(bits * 2).windowed(size = 2, step = 2, partialWindows = false)
 

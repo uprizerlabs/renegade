@@ -7,10 +7,10 @@ import mu.KotlinLogging
  * Created by ian on 7/9/17.
  */
 
+private val logger = KotlinLogging.logger {}
 
 class InputPairSampler<out InputType : Any, OutputType : Any>(
         val trainingData: List<Pair<InputType, OutputType>>, val outputDistance: (OutputType, OutputType) -> Double) {
-    private val logger = KotlinLogging.logger {}
 
     fun sample(maxSamples: Int)
             : InputDistances<InputType> {

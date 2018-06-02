@@ -2,14 +2,21 @@ package renegade.indexes.waypoint
 
 import com.google.common.collect.TreeMultimap
 import renegade.util.closestTo
-import java.util.*
+import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
 
-internal data class Waypoint<ItemType : Any>(
-        val item: ItemType
-) {
+class HashComparator<T : Any> : Comparator<T>, Serializable {
+    override fun compare(o1: T, o2: T): Int {
+        return o1.hashCode().compareTo(o2.hashCode())
+    }
 
-    private val distances = TreeMultimap.create<Double, ItemType>(Comparator.naturalOrder(), compareBy { it.hashCode() })
+}
+
+data class Waypoint<ItemType : Any>(
+        val item: ItemType
+) : Serializable {
+
+    private val distances = TreeMultimap.create<Double, ItemType>(Comparator.naturalOrder(), HashComparator())
 
     private val invertedDistances = distances.entries().map { (dist, item) -> item to dist }.toMap(ConcurrentHashMap())
 

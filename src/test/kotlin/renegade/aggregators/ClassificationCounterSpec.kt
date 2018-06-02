@@ -1,8 +1,8 @@
 package renegade.aggregators
 
-import renegade.approx
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec
+import renegade.approx
 
 class ClassificationCounterSpec : FreeSpec() {
     init {
@@ -13,7 +13,7 @@ class ClassificationCounterSpec : FreeSpec() {
             cc += 2
             cc += 1
             ".total" {
-                cc.total shouldBe 3
+                cc.total shouldBe approx(3.0)
             }
             ".toProbabilityMap" {
                 val probMap = cc.toProbabilityMap()
@@ -24,8 +24,8 @@ class ClassificationCounterSpec : FreeSpec() {
             ".toCountMap" {
                 val countMap = cc.toCountMap()
                 countMap.size shouldBe 2
-                countMap[1] shouldBe 2
-                countMap[2] shouldBe 1
+                countMap[1] shouldBe approx(2.0)
+                countMap[2] shouldBe approx(1.0)
             }
             ".classes" {
                 cc.classes shouldBe setOf(1, 2)
