@@ -2,7 +2,6 @@ package renegade.util
 
 import mu.KotlinLogging
 import java.util.*
-import kotlin.coroutines.experimental.buildSequence
 
 private val logger = KotlinLogging.logger {}
 
@@ -11,7 +10,7 @@ data class Prioritized<T, P : Comparable<P>>(val item : T, val priority : P)
 fun <T, C : Comparable<C>> Sequence<Prioritized<T, C>>.priorityBuffer(bufferSize: Int): Sequence<Prioritized<T, C>> {
     // TODO: Could the optimal buffer size be determined statistically somehow?
     val src = this.iterator()
-    return buildSequence {
+    return sequence {
         val queue = PriorityQueue<Prioritized<T, C>>(compareBy { it.priority })
         while (true) {
             while (queue.size < bufferSize && src.hasNext()) {
@@ -52,7 +51,7 @@ fun <E : Any> Sequence<E>.splitTrainTest(testEvery: Int): TrainTest<E> {
 
 fun <K> Sequence<K>.toPairSequence() : Sequence<Pair<K, K>> {
     val previousValues = ArrayList<K>()
-    return buildSequence {
+    return sequence {
         for (next in this@toPairSequence) {
             for (pair in previousValues) {
                 yield (next to pair)

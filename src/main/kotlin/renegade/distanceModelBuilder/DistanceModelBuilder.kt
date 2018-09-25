@@ -70,14 +70,14 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
             override fun build(inputDistances: InputDistances<InputType?>): DistanceModel<InputType?> {
                 val bothNullSS = SummaryStatistics()
                 val oneNullSS = SummaryStatistics()
-                val noNull = ArrayList<InputDistance<InputType>>()
+                val neitherIsNull = ArrayList<InputDistance<InputType>>()
                 inputDistances.forEach {
                         when {
                             it.inputs.first == null && it.inputs.second == null -> {
                                 bothNullSS.addValue(it.dist)
                             }
                             it.inputs.first != null && it.inputs.second != null -> {
-                                noNull.add(InputDistance(Two(it.inputs.first!!, it.inputs.second!!), it.dist))
+                                neitherIsNull.add(InputDistance(Two(it.inputs.first!!, it.inputs.second!!), it.dist))
                             }
                             else -> oneNullSS.addValue(it.dist)
 
@@ -86,12 +86,21 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
                 }
                 val bothNull = bothNullSS.mean
                 val oneNull = oneNullSS.mean
-                val pt = this@DistanceModelBuilder.build(noNull)
-                return DistanceModel { two ->
-                    when {
-                        two.first != null && two.second != null -> pt.invoke(Two(two.first!!, two.second!!))
-                        two.first == null && two.second == null -> bothNull
-                        else -> oneNull
+                if (neitherIsNull.isNotEmpty()) {
+                    val pt = this@DistanceModelBuilder.build(neitherIsNull)
+                    return DistanceModel { two ->
+                        when {
+                            two.first != null && two.second != null -> pt.invoke(Two(two.first!!, two.second!!))
+                            two.first == null && two.second == null -> bothNull
+                            else -> oneNull
+                        }
+                    }
+                } else {
+                    return DistanceModel { two ->
+                        when {
+                            two.first == null && two.second == null -> bothNull
+                            else -> oneNull
+                        }
                     }
                 }
             }

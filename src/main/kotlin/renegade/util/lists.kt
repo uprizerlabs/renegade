@@ -3,7 +3,6 @@ package renegade.util
 import renegade.util.math.sqr
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.coroutines.experimental.buildSequence
 
 /**
  * Created by ian on 7/3/17.
@@ -14,7 +13,7 @@ val <A> List<A>.sampleDistinctPairs: Sequence<Two<A>> get() {
     require(this is RandomAccess)
     require(this.size < Math.sqrt(Long.MAX_VALUE.toDouble()))
     val listSize = list.size
-    return buildSequence {
+    return sequence {
         while (true) {
             // In a perfect world would ensure uniqueness of random numbers using something like
             // https://www.tikalk.com/xincrol-unique-and-random-number-generation-algorithm/

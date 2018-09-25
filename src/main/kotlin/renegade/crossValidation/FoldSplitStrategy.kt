@@ -3,22 +3,21 @@ package renegade.crossValidation
 import mu.KotlinLogging
 import renegade.util.math.random
 import java.util.*
-import kotlin.coroutines.experimental.buildSequence
 
 private val logger = KotlinLogging.logger {}
 
 class SimpleSplitStrategy<InputType : Any, OutputType : Any>(val testProp: Double) : SplitStrategy<InputType, OutputType> {
     override fun split(data: Iterable<InputOutputPair<InputType, OutputType>>): Sequence<TrainTest<InputType, OutputType>> {
-        return buildSequence {
+        return sequence {
             val training = ArrayList<InputOutputPair<InputType, OutputType>>()
             val testing = ArrayList<InputOutputPair<InputType, OutputType>>()
-            data.forEach({ datum ->
+            data.forEach { datum ->
                 if (random.nextDouble() < testProp) {
                     testing += datum
                 } else {
                     training += datum
                 }
-            })
+            }
             logger.info("Testing ${training.size} items against ${testing.size} items")
             yield(TrainTest(training, testing))
 
@@ -31,7 +30,7 @@ class SimpleSplitStrategy<InputType : Any, OutputType : Any>(val testProp: Doubl
 
         override fun split(data: Iterable<InputOutputPair<InputType, OutputType>>): Sequence<TrainTest<InputType, OutputType>> {
             val foldsWithLimit = if (limit != null) Math.min(folds, limit) else folds
-            return buildSequence {
+            return sequence {
                 for (fold in 0..foldsWithLimit) {
                     logger.info("Splitting on fold $fold of $foldsWithLimit")
                     val training = ArrayList<InputOutputPair<InputType, OutputType>>()

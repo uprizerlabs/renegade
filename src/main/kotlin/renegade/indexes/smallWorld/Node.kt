@@ -1,7 +1,6 @@
 package renegade.indexes.smallWorld
 
 import java.lang.ref.WeakReference
-import kotlin.coroutines.experimental.buildSequence
 
 data class Node<ItemType : Any>(val item: ItemType) {
 
@@ -9,7 +8,7 @@ data class Node<ItemType : Any>(val item: ItemType) {
 
     fun getNeighbors(allNodes : RandomAccessSet<Node<ItemType>>): Set<Node<ItemType>> {
         return synchronized(neighborsBySampleRecency) {
-            buildSequence<Node<ItemType>> {
+            sequence<Node<ItemType>>({
                 neighborsBySampleRecency.toList().forEach { nodeRef ->
                     val node = nodeRef.get()
                     if (node == null || !allNodes.contains(node)) {
@@ -18,7 +17,7 @@ data class Node<ItemType : Any>(val item: ItemType) {
                         yield(node) // !! shouldn't be necessary but it is, perhaps coroutines bug
                     }
                 }
-            }.toSet()
+            }).toSet()
         }
     }
 

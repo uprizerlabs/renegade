@@ -1,7 +1,6 @@
 package renegade.util
 
 import com.google.common.collect.TreeMultimap
-import kotlin.coroutines.experimental.buildSequence
 
 /**
  * Return values in a TreeMultimap starting with the closest to [key] and progressively
@@ -10,7 +9,7 @@ import kotlin.coroutines.experimental.buildSequence
 fun <ItemType> TreeMultimap<Double, ItemType>.closestTo(key : Double) : Sequence<CloseItem<ItemType>> {
     val headIterator = asMap().descendingMap().tailMap(key, false).iterator()
     val tailIterator = asMap().tailMap(key).iterator()
-    return buildSequence {
+    return sequence {
         var lastHead = if (headIterator.hasNext()) headIterator.next() else null
         var lastTail = if (tailIterator.hasNext()) tailIterator.next() else null
         while (true) {

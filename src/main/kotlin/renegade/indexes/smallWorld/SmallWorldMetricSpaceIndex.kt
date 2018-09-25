@@ -2,7 +2,6 @@ package renegade.indexes.smallWorld
 
 import renegade.indexes.MetricSpaceIndex
 import renegade.util.Two
-import kotlin.coroutines.experimental.buildSequence
 
 /**
  * An efficient heuristic algorithm for searching a
@@ -50,7 +49,7 @@ class SmallWorldMetricSpaceIndex<ItemType : Any, DistanceType : Comparable<Dista
     }
 
     private fun searchFor(item: ItemType, shouldSampleDestinations: Boolean): Sequence<ResultWithNode<ItemType, DistanceType>> {
-        val sequence : Sequence<ResultWithNode<ItemType, DistanceType>> = buildSequence {
+        val sequence : Sequence<ResultWithNode<ItemType, DistanceType>> = sequence {
             val nodeMeasurements = HashMap<Node<ItemType>, NodeDistance<ItemType, DistanceType>>()
             val toVisit = sortedSetOf(compareBy<NodeDistance<ItemType, DistanceType>>({ it.distance }, { System.identityHashCode(it.node) }))
             val visited = mutableSetOf<NodeDistance<ItemType, DistanceType>>()
