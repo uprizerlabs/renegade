@@ -3,6 +3,7 @@ package renegade.indexes.bucketing
 import renegade.util.Two
 import java.io.Serializable
 import java.util.*
+import java.util.stream.Collectors
 
 class ItemBucketer<ItemType : Any, in DistanceType : Comparable<DistanceType>>(
         private val distanceFunction: (Two<ItemType>) -> DistanceType,
@@ -14,11 +15,11 @@ class ItemBucketer<ItemType : Any, in DistanceType : Comparable<DistanceType>>(
 
     fun bucket(item : ItemType) : BitSet {
         val bitset = BitSet(bits)
-        waypointPairs.withIndex().forEach { (ix, pair) ->
+        waypointPairs.withIndex().toList().parallelStream().map { (ix, pair) ->
             val firstDist = distanceFunction(Two(pair[0], item))
             val secondDist = distanceFunction(Two(pair[1], item))
-            bitset[ix] = firstDist > secondDist
-        }
+            ix to (firstDist > secondDist)
+        }.collect(Collectors.toList()).forEach { (ix, b) -> bitset[ix] = b }
         return bitset
     }
 

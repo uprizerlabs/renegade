@@ -6,17 +6,17 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss} %X %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-
+<!--
     <logger name="renegade.datasets.mnist" level="info"
             additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-
-    <root level="error">
+-->
+    <root level="info">
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="renegade.MetricSpace" level="error">
+    <logger name="renegade" level="info">
     </logger>
 
 </configuration>

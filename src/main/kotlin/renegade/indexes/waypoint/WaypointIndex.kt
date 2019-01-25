@@ -2,9 +2,13 @@ package renegade.indexes.waypoint
 
 import mu.KotlinLogging
 import renegade.indexes.MetricSpaceIndex
-import renegade.util.*
+import renegade.util.Prioritized
+import renegade.util.Two
 import renegade.util.math.distanceTo
+import renegade.util.priorityBuffer
+import renegade.util.shuffle
 import java.io.Serializable
+import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
@@ -40,9 +44,7 @@ class WaypointIndex<ItemType : Any>(
         }
     }
 
-    //  private val waypoints = waypoints.map { Waypoint(it)}
-    // TODO: Not threadsafe, but faster
-    private val itemVectors = HashMap<ItemType, List<Double>>()
+    private val itemVectors = ConcurrentHashMap<ItemType, List<Double>>()
 
     override fun searchFor(soughtItem: ItemType): Sequence<WaypointIndexResult<ItemType>> {
 
@@ -66,9 +68,9 @@ class WaypointIndex<ItemType : Any>(
         val soughtItemVector: List<Double> = waypointDistances.map { it.distance }
 
         return waypointsToTry
-                .map({ (item, _) -> calculateVectorDistance(soughtItemVector, item) })
+                .map { (item, _) -> calculateVectorDistance(soughtItemVector, item) }
                 .priorityBuffer(vectorLookAhead)
-                .map({ (item, _) -> calculateActualDistance(soughtItem, item) })
+                .map { (item, _) -> calculateActualDistance(soughtItem, item) }
                 .priorityBuffer(lookAhead)
                 .map { (item, priority) -> WaypointIndexResult(item, priority, this) }
     }
@@ -97,6 +99,7 @@ class WaypointIndex<ItemType : Any>(
     }
 
     override fun add(itemToAdd: ItemType) {
+        requireNotNull(itemToAdd)
         if (itemToAdd !in itemVectors) {
             val vector = waypoints.map { distanceFunction(Two(it.item, itemToAdd)) }
             itemVectors[itemToAdd] = vector

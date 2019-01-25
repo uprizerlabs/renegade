@@ -10,7 +10,7 @@ import java.io.Serializable
  * @author ian
  */
 
-open class DistanceModel<in InputType : Any?>(model : (Two<InputType>) -> Double) : (Two<InputType>) -> Double by model, Serializable {
+open class DistanceModel<in InputType : Any?>(val label : String, model : (Two<InputType>) -> Double) : (Two<InputType>) -> Double by model, Serializable {
 
     fun rmse(data: InputDistances<InputType>): Double {
         val distanceModel = this

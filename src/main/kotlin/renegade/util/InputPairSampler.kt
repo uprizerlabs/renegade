@@ -1,7 +1,8 @@
 package renegade.util
 
-import renegade.distanceModelBuilder.*
 import mu.KotlinLogging
+import renegade.distanceModelBuilder.InputDistance
+import renegade.distanceModelBuilder.InputDistances
 
 /**
  * Created by ian on 7/9/17.
@@ -14,7 +15,7 @@ class InputPairSampler<out InputType : Any, OutputType : Any>(
 
     fun sample(maxSamples: Int)
             : InputDistances<InputType> {
-        logger.info("Sampling up to $maxSamples from ${trainingData.size} training pairs")
+        logger.info("Sampling from ${trainingData.size} training pairs (maxSamples: $maxSamples)")
             val randomAccessTrainingSet: List<Pair<InputType, OutputType>> =
                     if (trainingData is RandomAccess) trainingData else {
                         logger.info("trainingData is not in RandomAccess list, converting to ArrayList")

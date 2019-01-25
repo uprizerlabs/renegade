@@ -2,6 +2,7 @@ package renegade.util
 
 import mu.KotlinLogging
 import java.util.*
+import kotlin.math.absoluteValue
 
 private val logger = KotlinLogging.logger {}
 
@@ -45,7 +46,9 @@ class TrainTest<E>(val train: List<E>, val test: List<E>)
 fun <E : Any> Sequence<E>.splitTrainTest(testEvery: Int): TrainTest<E> {
     require(testEvery > 0)
 
-    val grouped = this.withIndex().groupBy { it.index % testEvery == 0 }.mapValues { it.value.map { it.value } }
+    // NOTE: It's important to groupBy the hashcode of the value of the training entry, this prevents
+    //       accidental overlap
+    val grouped = this.withIndex().groupBy { (it.value.hashCode().absoluteValue) % testEvery == 0 }.mapValues { it.value.map { it.value } }
     return TrainTest(grouped[false] ?: emptyList(), grouped[true] ?: emptyList())
 }
 

@@ -7,7 +7,7 @@ import renegade.indexes.waypoint.WaypointIndex
 import renegade.util.*
 
 fun <InputType : Any, OutputType : Any> buildSlowClassifier(
-        trainingData: Iterable<Pair<InputType, OutputType>>,
+        trainingData: Collection<Pair<InputType, OutputType>>,
         distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>
 ): SlowClassifier<InputType, OutputType> {
     val distFunc = buildDistanceFunction(distanceModelBuilders, trainingData.toList())

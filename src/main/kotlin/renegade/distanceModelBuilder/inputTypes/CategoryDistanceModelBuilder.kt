@@ -34,7 +34,7 @@ class CategoryDistanceModelBuilder(override val label : String? = null) : Distan
 
         require(globalCount > 0)
 
-        return DistanceModel { pair ->
+        return DistanceModel(label ?: "UnlabeledCategoryDistanceModel") { pair ->
                 val pairScore = pairScores[pair]
                 if (pairScore != null && pairScore.count > minCount) pairScore.avg else {
                     val equalityScore = equalityScores[pair.first == pair.second]

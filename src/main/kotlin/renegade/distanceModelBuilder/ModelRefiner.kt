@@ -2,6 +2,7 @@ package renegade.distanceModelBuilder
 
 import mu.*
 import renegade.util.math.*
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Given a set of [modelBuilders], and a sampling of [InputDistance] [pairs], use an iterative technique to
@@ -24,13 +25,13 @@ class ModelRefiner<InputType : Any>(
 
     private val predictionCache = PredictionCache(initialModels.size, pairs.size)
 
-    private val currentModels = ArrayList(initialModels)
+    private val currentModels = CopyOnWriteArrayList(initialModels)
 
     init {
         pairs.withIndex().forEach { (index, pair) ->
             predictionCache.updateContributions(index) { modelIx ->
                 val result = initialModels[modelIx].invoke(pair.inputs)
-                require(result.isFinite(), {"result ($result) must be finite"})
+                require(result.isFinite()) {"result ($result) must be finite"}
                 result
             }
         }
@@ -43,7 +44,7 @@ class ModelRefiner<InputType : Any>(
         val prediction = predictionCache.getPrediction(pair.index)
         val actual = pair.value.dist
         val v = (actual - prediction).sqr
-        require(v.isFinite(), {"Non-finite value while calculating RMSE, prediction: $prediction, actual: $actual"})
+        require(v.isFinite()) {"Non-finite value while calculating RMSE, prediction: $prediction, actual: $actual"}
         v
     }.average().sqrt
 

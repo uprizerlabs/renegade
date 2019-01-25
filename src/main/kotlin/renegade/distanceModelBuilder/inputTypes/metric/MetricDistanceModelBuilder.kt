@@ -11,7 +11,7 @@ open class MetricDistanceModelBuilder<InputType : Any>(override val label : Stri
             Point(distanceFunction(it.inputs), it.dist)
         }.toList()
         val pavInterpolator = PairAdjacentViolators(points).interpolator(extrapolation = FLAT)
-        return DistanceModel {
+        return DistanceModel(label ?: "Unlabeled MetricDistanceModel") {
             val distance = distanceFunction(it)
             pavInterpolator(distance)
         }

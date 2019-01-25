@@ -11,7 +11,7 @@ abstract class MetricSpaceIndex<ItemType : Any, DistanceType : Comparable<Distan
 
     abstract fun add(item : ItemType)
 
-    open fun addAll(items : Iterable<ItemType>) = items.forEach{ add(it) }
+    open fun addAll(items: Collection<ItemType>) = items.parallelStream().forEach { requireNotNull(it); add(it) }
 
     interface Result<out ItemType, DistanceType : Comparable<DistanceType>> {
         val item : ItemType

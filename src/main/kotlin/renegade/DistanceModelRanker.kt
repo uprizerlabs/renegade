@@ -1,7 +1,8 @@
 package renegade
 
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics
+import org.apache.commons.math3.stat.descriptive.*
 import renegade.distanceModelBuilder.*
+import java.util.stream.Collectors
 import kotlin.math.abs
 
 typealias Contribution = Double
@@ -10,9 +11,12 @@ class DistanceModelRanker<out InputType : Any>(private val testPairs: List<Input
     fun rank(models: List<DistanceModel<InputType>>): List<IndexScore> {
         val contributionsSequence = calculateContributions(models).toList()
         val averages: List<Contribution> = contributionsSequence.map { it.contributions }.asSequence().averages()
-        val modelValueStat = ArrayList<SummaryStatistics>()
-        (0 until models.size).forEach { modelValueStat += SummaryStatistics() }
-        for ((contributions, result) in contributionsSequence) {
+        val modelValueStat = ArrayList<SynchronizedSummaryStatistics>()
+        for (x in models.indices) {
+            modelValueStat += SynchronizedSummaryStatistics()
+        }
+        //for ((contributions, result) in contributionsSequence) {
+        contributionsSequence.parallelStream().forEach { (contributions, result) ->
             val prediction = contributions.sum()
             val accuracyLoss = Math.abs(prediction - result)
             for (leaveOutIx in models.indices) {
@@ -32,12 +36,12 @@ class DistanceModelRanker<out InputType : Any>(private val testPairs: List<Input
     }
 
     internal fun calculateContributions(models: List<DistanceModel<InputType>>): Sequence<ContributionsResult> {
-        return testPairs.asSequence().map { inputDistance ->
+        return testPairs.parallelStream().map { inputDistance ->
             ContributionsResult(
                     models.map { model -> model(inputDistance.inputs)},
                     inputDistance.dist
             )
-        }
+        }.collect(Collectors.toList()).asSequence()
     }
 
     data class IndexScore(val index: Int, val score: Double)

@@ -37,7 +37,7 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
             map(mapper: (SourceType) -> InputType) = map(label, mapper)
 
     fun <SourceType : Any>
-            map(label: String? = null,
+            map(mappingLabel: String? = null,
                 mapper: (SourceType) -> InputType): DistanceModelBuilder<SourceType> {
 
         val destTypeModelBuilder = this
@@ -50,13 +50,14 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
             return sourceTrainingData.map { (first, second) -> InputDistance(first.map(), second) }
         }
 
-        val actualLabel = label ?: (mapper as? KProperty1)?.name
+        val propertyName = (mapper as? KProperty1)?.name
+        val mapLabel = mappingLabel ?: propertyName
 
-        val sourceTypeModelBuilder = object : DistanceModelBuilder<SourceType>(actualLabel) {
+        val sourceTypeModelBuilder = object : DistanceModelBuilder<SourceType>(mapLabel) {
             override fun build(sourceTrainingData: InputDistances<SourceType>): DistanceModel<SourceType> {
                 val mappedData: InputDistances<InputType> = mapTrainingData(sourceTrainingData)
                 val destTypeModel: DistanceModel<InputType> = destTypeModelBuilder.build(mappedData)
-                val sourceTypeModel = DistanceModel { twoSources: Two<SourceType> ->
+                val sourceTypeModel = DistanceModel(mapLabel ?: "Unlabelled mappping") { twoSources: Two<SourceType> ->
                     destTypeModel.invoke(twoSources.map())
                 }
                 return sourceTypeModel
@@ -88,7 +89,7 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
                 val oneNull = oneNullSS.mean
                 if (neitherIsNull.isNotEmpty()) {
                     val pt = this@DistanceModelBuilder.build(neitherIsNull)
-                    return DistanceModel { two ->
+                    return DistanceModel("nullable1($label)") { two ->
                         when {
                             two.first != null && two.second != null -> pt.invoke(Two(two.first!!, two.second!!))
                             two.first == null && two.second == null -> bothNull
@@ -96,7 +97,7 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
                         }
                     }
                 } else {
-                    return DistanceModel { two ->
+                    return DistanceModel("nullable2($label)") { two ->
                         when {
                             two.first == null && two.second == null -> bothNull
                             else -> oneNull

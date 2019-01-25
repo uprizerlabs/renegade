@@ -31,8 +31,8 @@ class DistanceModelRankerSpec : FreeSpec() {
                 val distancedModelRanker = DistanceModelRanker(inputDistances)
 
                 val models = ArrayList<DistanceModel<XY>>()
-                models += DistanceModel { (a, b) -> abs(a.x -b.x)}
-                models += DistanceModel { (_, _) -> 0.0}
+                models += DistanceModel("testing") { (a, b) -> abs(a.x -b.x)}
+                models += DistanceModel("testing") { (_, _) -> 0.0}
 
                 val ranked = distancedModelRanker.rank(models)
 

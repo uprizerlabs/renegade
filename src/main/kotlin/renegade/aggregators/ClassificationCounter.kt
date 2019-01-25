@@ -2,9 +2,10 @@ package renegade.aggregators
 
 import com.google.common.util.concurrent.AtomicDouble
 import java.io.Serializable
+import java.util.concurrent.ConcurrentHashMap
 
 class ClassificationCounter<ItemType : Any>(
-        private val counterMap: MutableMap<ItemType, AtomicDouble> = HashMap(),
+        private val counterMap: MutableMap<ItemType, AtomicDouble> = ConcurrentHashMap(),
         private val totalCount: AtomicDouble = AtomicDouble(0.0)
 ) : Serializable {
 
@@ -19,7 +20,7 @@ class ClassificationCounter<ItemType : Any>(
     fun addWithCount(item: ItemType, count : Double = 1.0) {
         pMapCache = null
         totalCount.addAndGet(count)
-        counterMap.computeIfAbsent(item, { AtomicDouble(0.0) }).addAndGet(count)
+        counterMap.computeIfAbsent(item) { AtomicDouble(0.0) }.addAndGet(count)
     }
 
     private @Volatile var pMapCache: Map<ItemType, Double>? = null

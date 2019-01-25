@@ -15,12 +15,22 @@ internal fun <InputType : Any, OutputType : Any> buildDistanceFunction(
     val metricSpace = MetricSpace(
             modelBuilders = distanceModelBuilders,
             trainingData = trainingData,
-            maxSamples = 100000,
+            maxSamples = 500000,
             outputDistance = { a, b -> if (a == b) 0.0 else 1.0 }
     )
 
-    metricSpace.modelContributions.lastEntry()?.value?.map { metricSpace.distanceModelList[it.key] to it.value }?.sortedByDescending { it.second }?.take(10)?.let { top10 ->
-        logger.info("Top 10 contributing distance models: ${top10.joinToString(separator = ", ") { "${it.first} (${it.second})" }}")
+    metricSpace
+            .modelContributions
+            .lastEntry()
+            ?.value
+            ?.map { metricSpace.distanceModelList[it.key] to it.value }
+            ?.sortedByDescending { it.second }
+            ?.take(10)?.let { top10 ->
+                logger.info("Top 10 contributing distance models:")
+                logger.info("label\tscore")
+                for (it in top10) {
+                    logger.info("${it.first.label}\t${it.second}")
+                }
     }
 
     val distFunc: (Two<InputType>) -> Double = object : (Two<InputType>) -> Double, Serializable {

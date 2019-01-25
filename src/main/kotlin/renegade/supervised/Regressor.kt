@@ -2,13 +2,15 @@ package renegade.supervised
 
 import mu.KotlinLogging
 import renegade.MetricSpace
-import renegade.aggregators.*
+import renegade.aggregators.Weighted
+import renegade.aggregators.WeightedDoubleAggregator
 import renegade.aggregators.WeightedDoubleAggregator.WeightedDoubleSummary
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.indexes.MetricSpaceIndex
 import renegade.indexes.waypoint.WaypointIndex
 import renegade.output.UniformDoubleOutputProcessor
-import renegade.util.*
+import renegade.util.Two
+import renegade.util.lookAheadHighest
 import java.lang.Math.abs
 
 private val logger = KotlinLogging.logger {}
@@ -17,13 +19,14 @@ fun <InputType: Any> Regressor(
         trainingData : List<Pair<InputType, Double>>,
         distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>,
         balanceOutput: Boolean = false,
-        minimumInsetSize : Int = 100
+        minimumInsetSize : Int = Math.min(100, Math.max(2, trainingData.size / 4))
 ) : Regressor<InputType> {
     if (balanceOutput) {
         TODO("")
     }
 
     logger.info("Building metric space")
+    /*
     val metricSpace = MetricSpace(
             modelBuilders = distanceModelBuilders,
             trainingData = trainingData,
@@ -31,7 +34,25 @@ fun <InputType: Any> Regressor(
     )
     logger.info("Building waypoint index")
     val distFunc: (Two<Pair<InputType, Double?>>) -> Double = { metricSpace.estimateDistance(Two(it.first.first, it.second.first)) }
-    val msi = WaypointIndex<Pair<InputType, Double?>>(distFunc, numWaypoints = 8, samples = trainingData)
+    */
+    val metricSpace = buildMetricSpace(trainingData, distanceModelBuilders)
+    metricSpace.modelContributions
+            .lastEntry()
+            ?.value
+            ?.map { metricSpace.distanceModelList[it.key] to it.value }
+            ?.sortedByDescending { it.second }
+            ?.take(10)?.let { top10 ->
+                logger.info("Top 10 contributing distance models:")
+                logger.info("label\tscore")
+                for (it in top10) {
+                    logger.info("${it.first.label}\t${it.second}")
+                }
+            }
+    val msi = WaypointIndex<Pair<InputType, Double?>>(
+            numWaypoints = 8,
+            samples = trainingData,
+            distance = { metricSpace.estimateDistance(Two(it.first.first, it.second.first)) }
+    )
     msi.addAll(trainingData)
     logger.info("Regressor built")
     return Regressor(msi, balanceOutput, minimumInsetSize)
@@ -83,7 +104,11 @@ class Regressor<InputType : Any>(
                     PV(outputAggregator.prediction(agg), outputAggregator.value(populationStats, agg))
                 }
                 .lookAheadHighest(minimum = minimumInsetSize, valueExtractor = {it.value})
-        return Prediction(value = highestValuePrediction!!.value.prediction, inSetSize = highestValuePrediction!!.index)
+            return Prediction(
+                value = highestValuePrediction!!.value.prediction,
+                inSetSize = highestValuePrediction!!.index
+            )
+
     }
 
     data class Prediction(val value : Double, val inSetSize : Int)

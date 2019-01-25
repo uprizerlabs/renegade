@@ -2,9 +2,8 @@ package renegade.datasets.iris
 
 import mu.KotlinLogging
 import renegade.distanceModelBuilder.DistanceModelBuilder
-import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
-import renegade.supervised.SlowClassifier
-import renegade.supervised.buildSlowClassifier
+import renegade.distanceModelBuilder.inputTypes.metric.*
+import renegade.supervised.*
 import java.util.zip.GZIPInputStream
 
 /**
@@ -16,15 +15,11 @@ import java.util.zip.GZIPInputStream
 private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
-    val classifier = irisClassifier()
-/*
-    loadIrisDataset().forEach { pair ->
-        classifier.
 
-    }
+    val data = loadIrisDataset()
 
-    val crossValidator = CrossValidator<IrisMeasurements, IrisSpecies>(SimpleSplitStrategy(0.1), CorrectClassificationProportion, data)
-*/
+    val classifier = irisClassifier(data)
+
 }
 
 data class IrisMeasurements(val sepalLength: Double, val sepalWidth: Double, val petalLength: Double, val petalWidth: Double)
@@ -42,15 +37,42 @@ fun loadIrisDataset(): List<Pair<IrisMeasurements, IrisSpecies>> {
     }.toList()
 }
 
-fun irisClassifier(): SlowClassifier<IrisMeasurements, IrisSpecies> {
-    val data = loadIrisDataset()
+fun irisClassifier(data : List<Pair<IrisMeasurements, IrisSpecies>>): SlowClassifier<IrisMeasurements, IrisSpecies> {
     val builders = ArrayList<DistanceModelBuilder<IrisMeasurements>>()
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalLength)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalWidth)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalLength)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalWidth)
+/*
+    for (builder in ArrayList(builders)) {
+        for (exp in listOf(0.25, 0.5, 0.75, 1.25, 1.5, 2.0, 4.0)) {
+            builders += DoubleDistanceModelBuilder(label = "petalLength^$exp").map { it -> Math.pow(it.petalLength, exp) }
+            builders += DoubleDistanceModelBuilder(label = "petalWidth^$exp").map { it  -> Math.pow(it.petalWidth, exp) }
+            builders += DoubleDistanceModelBuilder(label = "sepalLength^$exp").map { it  -> Math.pow(it.sepalLength, exp) }
+            builders += DoubleDistanceModelBuilder(label = "sepalWidth^$exp").map { it  -> Math.pow(it.sepalWidth, exp) }
+
+        }
+    }
+*/
+
+    builders += AdvancedDoubleDistanceModelBuilder("adv-petalLength").map(IrisMeasurements::petalLength)
+    builders += AdvancedDoubleDistanceModelBuilder("adv-petalWidth").map(IrisMeasurements::petalWidth)
+    builders += AdvancedDoubleDistanceModelBuilder("adv-sepalLength").map(IrisMeasurements::sepalLength)
+    builders += AdvancedDoubleDistanceModelBuilder("adv-sepalWidth").map(IrisMeasurements::sepalWidth)
 
     val classifier = buildSlowClassifier(data, builders)
 
     return classifier
+}
+
+private infix fun ClosedRange<Double>.step(step: Double): Iterable<Double> {
+    require(start.isFinite())
+    require(endInclusive.isFinite())
+    require(step > 0.0) { "Step must be positive, was: $step." }
+    val sequence = generateSequence(start) { previous ->
+        if (previous == Double.POSITIVE_INFINITY) return@generateSequence null
+        val next = previous + step
+        if (next > endInclusive) null else next
+    }
+    return sequence.asIterable()
 }

@@ -15,10 +15,9 @@ class FixedProportionDMB : DistanceModelBuilder<Double>(null) {
             proportion.average
         }
 
-        return DistanceModel({inputs : Two<Double> ->
+        return DistanceModel("testing") { inputs : Two<Double> ->
             val inputDistance = Math.abs(inputs.first - inputs.second)
             inputDistance * proportion
-        })
+        }
     }
-
 }

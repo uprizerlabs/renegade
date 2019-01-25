@@ -7,6 +7,8 @@ import renegade.util.*
 import renegade.util.math.sqr
 import java.io.Serializable
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.stream.Collectors
 
 /**
  * Created by ian on 7/3/17.
@@ -17,11 +19,13 @@ import java.util.*
 private val logger = KotlinLogging.logger {}
 
 class MetricSpace<InputType : Any, OutputType : Any>(
-        val modelBuilders: List<DistanceModelBuilder<InputType>>,
-        val trainingData: List<Pair<InputType, OutputType>>,
-        val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
-        val learningRate: Double = 0.1, val maxIterations: Int? = null,
-        val outputDistance: (OutputType, OutputType) -> Double) : (Two<InputType>) -> Double, Serializable {
+    val modelBuilders: List<DistanceModelBuilder<InputType>>,
+    val trainingData: List<Pair<InputType, OutputType>>,
+    val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
+    val learningRate: Double = 0.1, val maxIterations: Int? = null,
+    val maxModelCount: Int? = null,
+    val outputDistance: (OutputType, OutputType) -> Double
+) : (Two<InputType>) -> Double, Serializable {
 
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)
 
@@ -37,8 +41,8 @@ class MetricSpace<InputType : Any, OutputType : Any>(
     private fun buildRelevanceModels(): List<DistanceModel<InputType>> {
         modelContributions = TreeMap()
 
-        require(modelBuilders.isNotEmpty(), { "Must have at least one modelBuilders regressor" })
-        require(trainingData.isNotEmpty(), { "Must have at least one training instance" })
+        require(modelBuilders.isNotEmpty()) { "Must have at least one modelBuilders regressor" }
+        require(trainingData.isNotEmpty()) { "Must have at least one training instance" }
 
         val distancePairs = InputPairSampler(trainingData, outputDistance).sample(maxSamples).asSequence().splitTrainTest(2)
 
@@ -50,12 +54,34 @@ class MetricSpace<InputType : Any, OutputType : Any>(
             logger.info("Average distance of testing distance pairs is $averageDistance")
         }
 
+        val initialDistanceModels: List<DistanceModel<InputType>> =
+            (modelBuilders.parallelStream().map { modelBuilder ->
+                modelBuilder.build(
+                    distancePairs.train,
+                    1.0 / modelBuilders.size
+                )
+            }.collect(Collectors.toCollection { CopyOnWriteArrayList<DistanceModel<InputType>>() }))
+        logger.info("${initialDistanceModels.size} modelBuilders built.")
 
-        val distanceModelList = modelBuilders.map({ modelBuilder -> modelBuilder.build(distancePairs.train, 1.0 / modelBuilders.size) })
-        logger.info("${distanceModelList.size} modelBuilders built.")
+        return if (initialDistanceModels.size > 1) {
 
-        return if (distanceModelList.size > 1) {
-            val refiner = ModelRefiner(distanceModelList, modelBuilders, distancePairs.train, learningRate)
+            val modelsDescendingByContribution = DistanceModelRanker(distancePairs.test).rank(initialDistanceModels)
+
+            val distanceModels: List<DistanceModel<InputType>> =
+                if (maxModelCount != null && initialDistanceModels.size > maxModelCount) {
+                    // TODO: doing the build() twice shouldn't be necessary, but was the path of least resistance
+                    // TODO: at the time of writing.
+                    logger.info("Selecting best $maxModelCount models and regenerating.")
+                    modelsDescendingByContribution
+                        .take(maxModelCount)
+                        .parallelStream()
+                        .map { indexScore ->
+                            modelBuilders[indexScore.index].build(distancePairs.train, 1.0 / maxModelCount)
+                        }.collect(Collectors.toCollection { CopyOnWriteArrayList<DistanceModel<InputType>>() })
+                } else initialDistanceModels
+
+
+            val refiner = ModelRefiner(distanceModels, modelBuilders, distancePairs.train, learningRate)
 
             val rmsesByIteration = ArrayList<Double>()
 
@@ -66,15 +92,15 @@ class MetricSpace<InputType : Any, OutputType : Any>(
                 rmsesByIteration += modelsRMSE
                 val modelsDescendingByContribution = DistanceModelRanker(distancePairs.test).rank(refiner.models)
 
-                val iterationLog = modelContributions.computeIfAbsent(iteration, { TreeMap() })
+                val iterationLog = modelContributions.computeIfAbsent(iteration) { TreeMap() }
 
                 for ((index, score) in modelsDescendingByContribution) {
                     iterationLog[index] = score
-                    val thisIterationModelContributions = modelContributions.computeIfAbsent(iteration, { TreeMap() })
+                    val thisIterationModelContributions = modelContributions.computeIfAbsent(iteration) { TreeMap() }
                     assert(!thisIterationModelContributions.containsKey(index)) {"thisIterationModelContributions already contains score for model $index for iteration $iteration"}
                     thisIterationModelContributions[index] = score
                 }
-                for (toRefine in modelsDescendingByContribution) {
+                modelsDescendingByContribution.parallelStream().forEach { toRefine ->
                     val modelIx = toRefine.index
                     refiner.refineModel(modelIx)
                     val label = modelBuilders[modelIx].label
@@ -87,7 +113,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
             refiner.models
         } else {
             logger.warn("Refining skipped because we only have one model builder")
-            distanceModelList
+            initialDistanceModels
         }
 
     }
