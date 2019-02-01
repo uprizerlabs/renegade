@@ -67,7 +67,7 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
     }
 
     fun toNullable(): DistanceModelBuilder<InputType?> {
-        return object : DistanceModelBuilder<InputType?>("$label?") {
+        return object : DistanceModelBuilder<InputType?>("nullable($label)") {
             override fun build(inputDistances: InputDistances<InputType?>): DistanceModel<InputType?> {
                 val bothNullSS = SummaryStatistics()
                 val oneNullSS = SummaryStatistics()
@@ -78,7 +78,7 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
                                 bothNullSS.addValue(it.dist)
                             }
                             it.inputs.first != null && it.inputs.second != null -> {
-                                neitherIsNull.add(InputDistance(Two(it.inputs.first!!, it.inputs.second!!), it.dist))
+                                neitherIsNull.add(InputDistance(Two(it.inputs.first, it.inputs.second), it.dist))
                             }
                             else -> oneNullSS.addValue(it.dist)
 
@@ -87,6 +87,7 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
                 }
                 val bothNull = bothNullSS.mean
                 val oneNull = oneNullSS.mean
+
                 if (neitherIsNull.isNotEmpty()) {
                     val pt = this@DistanceModelBuilder.build(neitherIsNull)
                     return DistanceModel("nullable1($label)") { two ->
@@ -98,10 +99,11 @@ abstract class DistanceModelBuilder<InputType : Any?>(open val label: String?): 
                     }
                 } else {
                     return DistanceModel("nullable2($label)") { two ->
-                        when {
+                        val r = when {
                             two.first == null && two.second == null -> bothNull
                             else -> oneNull
                         }
+                        r
                     }
                 }
             }

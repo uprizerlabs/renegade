@@ -27,6 +27,7 @@ class FastClassifier<InputType : Any, OutputType : Any>(
 
     override fun predict(input: InputType): Map<OutputType, Double> {
         val bucket = itemBucketer.bucket(input)
-        return buckets[bucket]?.toProbabilityMap() ?: emptyMap()
+        val classificationCounter = buckets[bucket]
+        return classificationCounter?.toProbabilityMap() ?: emptyMap()
     }
 }

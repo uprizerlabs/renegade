@@ -2,15 +2,13 @@ package renegade.supervised
 
 import mu.KotlinLogging
 import renegade.MetricSpace
-import renegade.aggregators.Weighted
-import renegade.aggregators.WeightedDoubleAggregator
+import renegade.aggregators.*
 import renegade.aggregators.WeightedDoubleAggregator.WeightedDoubleSummary
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.indexes.MetricSpaceIndex
 import renegade.indexes.waypoint.WaypointIndex
 import renegade.output.UniformDoubleOutputProcessor
-import renegade.util.Two
-import renegade.util.lookAheadHighest
+import renegade.util.*
 import java.lang.Math.abs
 
 private val logger = KotlinLogging.logger {}
@@ -93,12 +91,14 @@ class Regressor<InputType : Any>(
 
         data class PV(val prediction : Double, val value : Double)
 
+        data class ValueDistance(val value : Double, val distance : Double)
+
         val highestValuePrediction = resultSequence
-                .mapNotNull { it.item.second }
+                .mapNotNull { if (it.item.second != null) ValueDistance(it.item.second!!, it.distance) else null }
                 .map { outputValue ->
                     val weightedOutput = when {
-                        outputProcessor != null -> outputProcessor.invoke(outputValue)
-                        else -> Weighted(outputValue)
+                        outputProcessor != null -> outputProcessor.invoke(outputValue.value)
+                        else -> Weighted(item = outputValue.value, distance = outputValue.distance )
                     }
                     agg.addValue(weightedOutput)
                     PV(outputAggregator.prediction(agg), outputAggregator.value(populationStats, agg))

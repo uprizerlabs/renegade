@@ -8,6 +8,7 @@ class DoubleDistanceModelBuilder(label : String? = null) : MetricDistanceModelBu
 private object AbsoluteDifferenceDistanceFunction : (Two<Double>) -> Double, Serializable {
 
     override fun invoke(pair : Two<Double>): Double {
+        require(pair.first.isFinite() && pair.second.isFinite()) {"input pair has non-finite value: $pair"}
         return Math.abs(pair.first - pair.second)
     }
 

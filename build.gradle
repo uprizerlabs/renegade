@@ -54,8 +54,7 @@ dependencies {
     implementation group: 'com.google.guava', name: 'guava', version: '25.1-jre'
     implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.2'
-    
- //   compile 'com.github.kwebio:shoebox:0.2.13'
+    implementation 'de.ruedigermoeller:fst:2.56'
 
     // Logging
     compile 'io.github.microutils:kotlin-logging:1.6.22'

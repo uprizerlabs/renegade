@@ -21,5 +21,8 @@ open class DistanceModel<in InputType : Any?>(val label : String, model : (Two<I
 
 }
 
-fun <InputType : Any> List<DistanceModel<InputType>>.estimate(inputs: Two<InputType>): Double
-        = this.map { it.invoke(inputs) }.sum()
+fun <InputType : Any> List<DistanceModel<InputType>>.estimate(inputs: Two<InputType>): Double = this.map {
+    val e = it.invoke(inputs)
+    it.invoke(inputs)
+    e
+}.sum()
