@@ -20,7 +20,7 @@ interface OutputAggregator<ItemType, SummaryType, PredictionType> {
 
 }
 
-data class Weighted<ItemType>(val item : ItemType, val distance : Double = 0.0, val weight : Double = 1.0)
+data class ItemWithDistance<ItemType>(val item : ItemType, val distance : Double = 0.0)
 
 interface WeightedOutputAggregator<ItemType, SummaryType, PredictionType>
-    : OutputAggregator<Weighted<ItemType>, SummaryType, PredictionType>
+    : OutputAggregator<ItemWithDistance<ItemType>, SummaryType, PredictionType>

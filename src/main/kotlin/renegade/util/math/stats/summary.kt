@@ -1,5 +1,7 @@
 package renegade.util.math.stats
 
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics
+
 interface Summary {
     val count : Double
     val mean : Double
@@ -21,3 +23,5 @@ internal class MutableSummary : Summary {
 
     operator fun plusAssign(v : Double) = add(v)
 }
+
+val SummaryStatistics.count get() = this.n

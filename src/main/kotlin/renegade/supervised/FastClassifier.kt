@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 fun <InputType : Any, OutputType : Any> buildFastClassifier(
         trainingData: Collection<Pair<InputType, OutputType>>,
         distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>,
-        bits: Int = 8
+        bits: Int = 10
 ): FastClassifier<InputType, OutputType> {
 
     val distFunc = buildDistanceFunction(distanceModelBuilders, trainingData.toList())

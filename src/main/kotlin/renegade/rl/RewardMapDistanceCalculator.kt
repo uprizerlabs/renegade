@@ -1,4 +1,4 @@
-package renegade.reinforcementLearning
+package renegade.rl
 
 import java.lang.Math.abs
 import java.time.*

@@ -52,9 +52,13 @@ dependencies {
     compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version: '1.0.0'
     implementation 'com.github.sanity:pairAdjacentViolators:1.4.15'
     implementation group: 'com.google.guava', name: 'guava', version: '25.1-jre'
-    implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.2'
     implementation 'de.ruedigermoeller:fst:2.56'
+
+    implementation group: 'org.tukaani', name: 'xz', version: '1.6'
+
+    implementation("com.squareup.moshi:moshi:1.8.0")
 
     // Logging
     compile 'io.github.microutils:kotlin-logging:1.6.22'

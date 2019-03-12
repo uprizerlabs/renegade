@@ -3,6 +3,7 @@ package renegade
 import com.google.common.collect.Iterables
 import mu.KotlinLogging
 import renegade.distanceModelBuilder.*
+import renegade.opt.*
 import renegade.util.*
 import renegade.util.math.sqr
 import java.io.Serializable
@@ -26,6 +27,28 @@ class MetricSpace<InputType : Any, OutputType : Any>(
     val maxModelCount: Int? = null,
     val outputDistance: (OutputType, OutputType) -> Double
 ) : (Two<InputType>) -> Double, Serializable {
+
+    private object Parameters {
+        val maxSamples = ValueListParameter("maxSamples", 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000)
+        val learningRate = ValueListParameter("learningRate", 0.01, 0.05, 0.1, 0.2, 0.5, 1.0)
+        val maxModelCount = ValueListParameter("maxModelCount", 4, 8, 16, 32, 64, 128, 256, 1024, 10240)
+    }
+
+    constructor(
+            cfg : OptConfig,
+             modelBuilders: List<DistanceModelBuilder<InputType>>,
+             trainingData: List<Pair<InputType, OutputType>>,
+             maxIterations: Int? = null,
+             outputDistance: (OutputType, OutputType) -> Double
+    ) : this(
+            modelBuilders,
+            trainingData,
+            cfg.get<Int>(Parameters.maxSamples),
+            cfg[Parameters.learningRate],
+            maxIterations,
+            cfg[Parameters.maxModelCount],
+            outputDistance
+    )
 
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)
 

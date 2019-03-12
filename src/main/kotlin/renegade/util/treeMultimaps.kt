@@ -1,35 +1,36 @@
 package renegade.util
 
-import com.google.common.collect.TreeMultimap
+import java.util.concurrent.ConcurrentSkipListMap
+import kotlin.collections.MutableMap.MutableEntry
 
 /**
  * Return values in a TreeMultimap starting with the closest to [key] and progressively
  * getting further away.
  */
-fun <ItemType> TreeMultimap<Double, ItemType>.closestTo(key : Double) : Sequence<CloseItem<ItemType>> {
-    val headIterator = asMap().descendingMap().tailMap(key, false).iterator()
-    val tailIterator = asMap().tailMap(key).iterator()
+fun <ItemType, ValListType : List<ItemType>> ConcurrentSkipListMap<Double, ValListType>.closestTo(key : Double) : Sequence<CloseItem<ItemType>> {
+    val headIterator = this.descendingMap().tailMap(key, false).iterator()
+    val tailIterator = this.tailMap(key).iterator()
     return sequence {
-        var lastHead = if (headIterator.hasNext()) headIterator.next() else null
+        var lastHead: MutableEntry<Double, ValListType>? = if (headIterator.hasNext()) headIterator.next() else null
         var lastTail = if (tailIterator.hasNext()) tailIterator.next() else null
         while (true) {
             if (lastHead != null && lastTail != null) {
                 val headDiff = lastHead.key diff key
                 val tailDiff = lastTail.key diff key
                 if (headDiff < tailDiff) {
-                    yieldAll(lastHead.value.map { CloseItem(it, headDiff)})
+                    lastHead.value.forEach { yield(CloseItem(it, headDiff)) }
                     lastHead = if (headIterator.hasNext()) headIterator.next() else null
                 } else {
-                    yieldAll(lastTail.value.map { CloseItem(it, tailDiff)})
+                    lastTail.value.forEach { yield(CloseItem(it, tailDiff)) }
                     lastTail = if (tailIterator.hasNext()) tailIterator.next() else null
                 }
             } else if (lastHead != null) {
                 val headDiff = lastHead.key diff key
-                yieldAll(lastHead.value.map { CloseItem(it, headDiff)})
+                lastHead.value.forEach { yield(CloseItem(it, headDiff)) }
                 lastHead = if (headIterator.hasNext()) headIterator.next() else null
             } else if (lastTail != null) {
                 val tailDiff = lastTail.key diff key
-                yieldAll(lastTail.value.map { CloseItem(it, tailDiff)})
+                lastTail.value.forEach { yield(CloseItem(it, tailDiff)) }
                 lastTail = if (tailIterator.hasNext()) tailIterator.next() else null
             } else {
                 break

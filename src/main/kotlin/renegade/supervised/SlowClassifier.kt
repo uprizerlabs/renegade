@@ -1,10 +1,13 @@
 package renegade.supervised
 
+import mu.KotlinLogging
 import renegade.aggregators.*
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.indexes.MetricSpaceIndex
 import renegade.indexes.waypoint.WaypointIndex
 import renegade.util.*
+
+private val logger = KotlinLogging.logger {}
 
 fun <InputType : Any, OutputType : Any> buildSlowClassifier(
         trainingData: Collection<Pair<InputType, OutputType>>,
@@ -16,8 +19,10 @@ fun <InputType : Any, OutputType : Any> buildSlowClassifier(
         return distFunc(Two(p.first.first, p.second.first))
     }
 
+    logger.info("Building WaypointIndex of ${trainingData.size} items")
     val msi = WaypointIndex<Pair<InputType, OutputType?>>(::pairDistFunc, numWaypoints = 8, samples = trainingData)
     msi.addAll(trainingData)
+    logger.info("WaypointIndex built.")
     return SlowClassifier(msi)
 }
 

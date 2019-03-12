@@ -1,18 +1,18 @@
 package renegade.util
 
-import com.google.common.collect.TreeMultimap
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.FreeSpec
 import renegade.approx
+import java.util.concurrent.ConcurrentSkipListMap
 
 class TreeMultimapsSpec : FreeSpec() {
     init {
         "verify closestTo()" - {
-            val mm = TreeMultimap.create<Double, Int>().apply {
-                put(0.5, 1)
-                put(0.8, 2)
-                put(0.9, 3)
-                put(0.2, 4)
+            val mm = ConcurrentSkipListMap<Double, List<Int>>().apply {
+                put(0.5, listOf(1))
+                put(0.8, listOf(2))
+                put(0.9, listOf(3))
+                put(0.2, listOf(4))
             }
 
             "check number and order of returned .items for an inexact match" {

@@ -1,6 +1,7 @@
 package renegade.distanceModelBuilder.inputTypes.metric
 
 import renegade.distanceModelBuilder.*
+import renegade.opt.OptConfig
 import renegade.supervised.Regressor
 import renegade.util.Two
 import kotlin.math.*
@@ -16,7 +17,7 @@ class AdvancedDoubleDistanceModelBuilder(override val label: String) : DistanceM
 
        // distanceModelBuilders += DoubleDistanceModelBuilder("avg-dist").map { listOf(it.first, it.second).average() }
 
-        val regressor = Regressor(inputDistances.map { it.inputs to it.dist }, distanceModelBuilders)
+        val regressor = Regressor(OptConfig(), inputDistances.map { it.inputs to it.dist }, distanceModelBuilders)
 
         return AdvancedDoubleDistanceModel(label, regressor)
     }

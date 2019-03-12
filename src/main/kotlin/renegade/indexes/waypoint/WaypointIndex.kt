@@ -2,40 +2,49 @@ package renegade.indexes.waypoint
 
 import mu.KotlinLogging
 import renegade.indexes.MetricSpaceIndex
-import renegade.util.Prioritized
-import renegade.util.Two
+import renegade.indexes.waypoint.WaypointIndex.Parameters.lookAhead
+import renegade.indexes.waypoint.WaypointIndex.Parameters.vecLookAheadMultiplier
+import renegade.opt.*
+import renegade.util.*
 import renegade.util.math.distanceTo
-import renegade.util.priorityBuffer
-import renegade.util.shuffle
 import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
+import java.util.stream.Collectors
 
 private val logger = KotlinLogging.logger {}
 
-class WaypointIndex<ItemType : Any>(
-        val distance: (Two<ItemType>) -> Double,
-        val waypoints: List<Waypoint<ItemType>>,
+
+data class WaypointIndexConfig(
         val lookAhead: Int = 100,
-        val vectorLookAhead: Int = lookAhead * 10
+        val vectorLookAhead: Int = lookAhead * 10) : Serializable
+
+class WaypointIndex<ItemType : Any>(
+        val cfg : OptConfig,
+        val distance: (Two<ItemType>) -> Double,
+        val waypoints: List<Waypoint<ItemType>>
 ) : MetricSpaceIndex<ItemType, Double>(distance), Serializable {
 
+    private object Parameters {
+        val numWaypoints = ValueListParameter("numWaypoints", 2, 4, 8, 16, 32)
+        val lookAhead = ValueListParameter("lookAhead", 5, 10, 20, 50, 100, 200, 500)
+        val vecLookAheadMultiplier = ValueListParameter("vecLookAheadMult", 1, 2, 4, 8, 16)
+    }
+
     constructor(
+            cfg : OptConfig,
             distance: (Two<ItemType>) -> Double,
-            numWaypoints: Int,
             samples: Iterable<ItemType>,
-            lookAhead: Int = 100,
-            vectorLookAhead: Int = lookAhead * 10
+             config : WaypointIndexConfig = WaypointIndexConfig()
     )
             : this(
-            distance,
-            samples
+            cfg = cfg,
+            distance = distance,
+            waypoints = samples
                     .asSequence()
                     .toMutableList()
                     .shuffle()
-                    .take(numWaypoints)
-                    .map { Waypoint(it) },
-            lookAhead,
-            vectorLookAhead
+                    .take(cfg[Parameters.numWaypoints])
+                    .map { Waypoint(it) }
     )
 
     init {
@@ -55,12 +64,14 @@ class WaypointIndex<ItemType : Any>(
         data class WaypointWithDistance(val ix: Int, val waypoint: ItemType, val distance: Double)
 
         val waypointDistances = waypoints
-                .withIndex()
+                .withIndex().toList()
+                .parallelStream()
                 .map { (ix, v) -> WaypointWithDistance(ix, v.item, distanceFunction(Two(v.item, soughtItem))) }
+                .collect(Collectors.toList())
         val closest = waypointDistances.minBy { it.distance }!!
         val ix = closest.ix
 
-        val waypointsToTry = waypoints[ix].closestTo(waypointDistances[ix].distance)
+        val waypointsToTry: Sequence<CloseItem<ItemType>> = waypoints[ix].closestTo(waypointDistances[ix].distance)
 
         // FIXME: These are already in ascending order, need to calculate the distance vectors to all waypoints
         // and measure their distance instead.  This needs to be broken up.
@@ -69,9 +80,10 @@ class WaypointIndex<ItemType : Any>(
 
         return waypointsToTry
                 .map { (item, _) -> calculateVectorDistance(soughtItemVector, item) }
-                .priorityBuffer(vectorLookAhead)
+                .priorityBuffer(cfg[lookAhead] * cfg[vecLookAheadMultiplier])
+                // TODO: Might be advantagous to parallelize this, but would be non-trivial
                 .map { (item, _) -> calculateActualDistance(soughtItem, item) }
-                .priorityBuffer(lookAhead)
+                .priorityBuffer(cfg[lookAhead])
                 .map { (item, priority) -> WaypointIndexResult(item, priority, this) }
     }
 
