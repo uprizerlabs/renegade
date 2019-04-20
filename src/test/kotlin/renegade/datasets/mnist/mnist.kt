@@ -9,6 +9,7 @@ import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import renegade.features.*
 import renegade.indexes.waypoint.WaypointIndex
+import renegade.opt.OptConfig
 import renegade.supervised.*
 import renegade.util.*
 import java.util.zip.GZIPInputStream
@@ -44,7 +45,7 @@ fun main(args: Array<String>) {
             builders += DoubleDistanceModelBuilder().map(featureExtractor.toString()) { featureExtractor.invoke(it)!! }
         }
 
-        val metricSpace: MetricSpace<List<Double>, Int> = MetricSpace(builders, data, maxSamples = maxSamples, outputDistance = equalityOutputDistanceMetric)
+        val metricSpace: MetricSpace<List<Double>, Int> = MetricSpace(OptConfig(), builders, data, outputDistance = equalityOutputDistanceMetric)
 
         logger.info("Cross-validating metricSpace")
 
@@ -52,7 +53,7 @@ fun main(args: Array<String>) {
 
         val cvScore = crossValidator.test { data ->
             val dist : (Two<Pair<List<Double>, Int?>>) -> Double = {metricSpace.invoke(Two(it.first.first, it.second.first))}
-            val index = WaypointIndex<Pair<List<Double>, Int?>>(distance = dist, numWaypoints = 8, samples = data)
+            val index = WaypointIndex<Pair<List<Double>, Int?>>(OptConfig(), distance = dist, samples = data)
 
             index.addAll(data)
 

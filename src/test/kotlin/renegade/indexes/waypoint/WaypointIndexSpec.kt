@@ -5,6 +5,7 @@ import io.kotlintest.specs.FreeSpec
 import mu.KotlinLogging
 import renegade.approx
 import renegade.indexes.*
+import renegade.opt.OptConfig
 import renegade.util.Two
 import renegade.util.math.*
 
@@ -19,7 +20,7 @@ class WaypointIndexSpec : FreeSpec() {
             points += Point(3.0, 1.0)
             "create a WayPointIndex with 2 different waypoints" - {
                 val waypoints = listOf(Waypoint(Point(3.0, 4.0)), Waypoint(Point(2.0, 3.0)))
-                val waypointIndex = WaypointIndex(
+                val waypointIndex = WaypointIndex(OptConfig(),
                         distance = { (a, b): Two<Point> -> a.dist(b) }, waypoints = waypoints)
                 waypointIndex.addAll(points)
                 val point = Point(1.0, 2.0)
@@ -54,7 +55,7 @@ class WaypointIndexSpec : FreeSpec() {
                     val distance = it.first.dist(it.second)
                     distance
                 }
-                val waypointIndex = WaypointIndex(distance = distanceFunction, numWaypoints = 4, samples = points)
+                val waypointIndex = WaypointIndex(OptConfig(), distance = distanceFunction, samples = points)
                 val exhaustiveIndex = ExhaustiveMetricSpaceIndex(distanceFunction)
                 points.forEach { exhaustiveIndex.add(it); waypointIndex.add(it) }
                 "search for 100 random points and measure accuracy and distance calls of each" {

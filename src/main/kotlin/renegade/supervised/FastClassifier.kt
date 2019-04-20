@@ -3,16 +3,18 @@ package renegade.supervised
 import renegade.aggregators.ClassificationCounter
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.indexes.bucketing.ItemBucketer
+import renegade.opt.*
 import java.util.concurrent.ConcurrentHashMap
 
-fun <InputType : Any, OutputType : Any> buildFastClassifier(
-        trainingData: Collection<Pair<InputType, OutputType>>,
-        distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>,
-        bits: Int = 10
+private val bits = IntRangeParameter("fast-classifier-bits", 3 .. 16, 10)
+
+fun <InputType : Any, OutputType : Any> buildFastClassifier(cfg : OptConfig,
+                                                            trainingData: Collection<Pair<InputType, OutputType>>,
+                                                            distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>
 ): FastClassifier<InputType, OutputType> {
 
-    val distFunc = buildDistanceFunction(distanceModelBuilders, trainingData.toList())
-    val itemBucketer = ItemBucketer(distFunc, trainingData.map {it.first}, bits)
+    val distFunc = buildDistanceFunction(cfg, distanceModelBuilders, trainingData.toList())
+    val itemBucketer = ItemBucketer(distFunc, trainingData.map {it.first}, cfg[bits])
     val buckets = ConcurrentHashMap<Any, ClassificationCounter<OutputType>>()
     trainingData.parallelStream().forEach {
         buckets.computeIfAbsent(itemBucketer.bucket(it.first)) { ClassificationCounter() }.plusAssign(it.second)

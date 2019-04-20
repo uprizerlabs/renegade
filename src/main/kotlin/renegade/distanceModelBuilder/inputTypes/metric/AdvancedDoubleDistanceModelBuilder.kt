@@ -17,6 +17,7 @@ class AdvancedDoubleDistanceModelBuilder(override val label: String) : DistanceM
 
        // distanceModelBuilders += DoubleDistanceModelBuilder("avg-dist").map { listOf(it.first, it.second).average() }
 
+        // TODO: May want to configure this
         val regressor = Regressor(OptConfig(), inputDistances.map { it.inputs to it.dist }, distanceModelBuilders)
 
         return AdvancedDoubleDistanceModel(label, regressor)

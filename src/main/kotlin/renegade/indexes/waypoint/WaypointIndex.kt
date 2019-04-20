@@ -4,7 +4,8 @@ import mu.KotlinLogging
 import renegade.indexes.MetricSpaceIndex
 import renegade.indexes.waypoint.WaypointIndex.Parameters.lookAhead
 import renegade.indexes.waypoint.WaypointIndex.Parameters.vecLookAheadMultiplier
-import renegade.opt.*
+import renegade.opt.OptConfig
+import renegade.opt.ValueListParameter
 import renegade.util.*
 import renegade.util.math.distanceTo
 import java.io.Serializable
@@ -25,9 +26,9 @@ class WaypointIndex<ItemType : Any>(
 ) : MetricSpaceIndex<ItemType, Double>(distance), Serializable {
 
     private object Parameters {
-        val numWaypoints = ValueListParameter("numWaypoints", 2, 4, 8, 16, 32)
-        val lookAhead = ValueListParameter("lookAhead", 5, 10, 20, 50, 100, 200, 500)
-        val vecLookAheadMultiplier = ValueListParameter("vecLookAheadMult", 1, 2, 4, 8, 16)
+        val numWaypoints = ValueListParameter("numWaypoints", 10, 2, 4, 16, 32)
+        val lookAhead = ValueListParameter("lookAhead", 50, 10, 20, 100, 200, 500)
+        val vecLookAheadMultiplier = ValueListParameter("vecLookAheadMult", 10, 2, 4, 8, 16)
     }
 
     constructor(
@@ -112,7 +113,7 @@ class WaypointIndex<ItemType : Any>(
 
     override fun add(itemToAdd: ItemType) {
         requireNotNull(itemToAdd)
-        if (itemToAdd !in itemVectors) {
+        if (!itemVectors.containsKey(itemToAdd)) {
             val vector = waypoints.map { distanceFunction(Two(it.item, itemToAdd)) }
             itemVectors[itemToAdd] = vector
             waypoints.withIndex().forEach { (index, value) -> value.add(vector[index], itemToAdd) }

@@ -5,22 +5,29 @@ import renegade.aggregators.*
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.indexes.MetricSpaceIndex
 import renegade.indexes.waypoint.WaypointIndex
+import renegade.opt.OptConfig
 import renegade.util.*
+import java.io.Serializable
+import java.util.concurrent.ConcurrentLinkedQueue
 
 private val logger = KotlinLogging.logger {}
 
 fun <InputType : Any, OutputType : Any> buildSlowClassifier(
+        cfg : OptConfig,
         trainingData: Collection<Pair<InputType, OutputType>>,
         distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>
 ): SlowClassifier<InputType, OutputType> {
-    val distFunc = buildDistanceFunction(distanceModelBuilders, trainingData.toList())
+    val distFunc = buildDistanceFunction(cfg, distanceModelBuilders, trainingData.toList())
 
-    fun pairDistFunc(p: Two<Pair<InputType, OutputType?>>): Double {
-        return distFunc(Two(p.first.first, p.second.first))
+    // For reasons unknown, just declaring this as an anonymous function caused a deserialization error,
+    // doing it as a class fixed it.  Java serialization is not to be trusted :/
+    class PairDistanceFunction : (Two<Pair<InputType, OutputType?>>) -> Double, Serializable {
+        override fun invoke(p: Two<Pair<InputType, OutputType?>>)= distFunc(Two(p.first.first, p.second.first))
+
     }
 
     logger.info("Building WaypointIndex of ${trainingData.size} items")
-    val msi = WaypointIndex<Pair<InputType, OutputType?>>(::pairDistFunc, numWaypoints = 8, samples = trainingData)
+    val msi = WaypointIndex<Pair<InputType, OutputType?>>(cfg, PairDistanceFunction(), samples = trainingData)
     msi.addAll(trainingData)
     logger.info("WaypointIndex built.")
     return SlowClassifier(msi)
@@ -43,7 +50,7 @@ class SlowClassifier<InputType : Any, OutputType : Any> internal constructor(
 
         data class PV(val prediction: Map<OutputType, Double>, val value: Double)
 
-        val pvLog = ArrayList<PV>()
+        val pvLog = ConcurrentLinkedQueue<PV>()
         val highestValuePrediction = resultSequence
                 .mapNotNull { it.item.second }
                 .map { output ->

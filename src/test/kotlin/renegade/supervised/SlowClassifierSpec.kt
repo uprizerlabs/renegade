@@ -4,6 +4,7 @@ import io.kotlintest.specs.FreeSpec
 import renegade.datasets.gen.spiral.Spiral
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
+import renegade.opt.OptConfig
 
 class SlowClassifierSpec : FreeSpec() {
     init {
@@ -13,7 +14,7 @@ class SlowClassifierSpec : FreeSpec() {
                 val builders = ArrayList<DistanceModelBuilder<List<Double>>>()
                 builders += DoubleDistanceModelBuilder().map {it[0]}
                 builders += DoubleDistanceModelBuilder().map {it[1]}
-                val classifier = buildSlowClassifier(spiralData, builders)
+                val classifier = buildSlowClassifier(OptConfig(), spiralData, builders)
                 "generate prediction" {
                     println()
                 }

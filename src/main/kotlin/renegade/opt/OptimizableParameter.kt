@@ -1,17 +1,17 @@
 package renegade.opt
 
 import mu.KotlinLogging
-import java.util.concurrent.ConcurrentSkipListSet
+import java.io.Serializable
 import kotlin.reflect.KClass
 
 private val logger = KotlinLogging.logger {}
 
-private val usedLabels = ConcurrentSkipListSet<String>()
+// private val usedLabels = ConcurrentSkipListSet<String>()
 
-abstract class OptimizableParameter<T : Any>(val type : KClass<T>, open val label : String) {
+abstract class OptimizableParameter<T : Any>(val type : KClass<T>, open val label : String, open val default : T) : Serializable {
 
     init {
-        require(usedLabels.add(label)) { "Label '$label' already used, OptimizableParameter labels must be unique" }
+//        require(usedLabels.add(label)) { "Label '$label' already used, OptimizableParameter labels must be unique" }
     }
 
     abstract fun minimise(history : Map<T, Double> = emptyMap()) : T?
@@ -33,11 +33,11 @@ abstract class OptimizableParameter<T : Any>(val type : KClass<T>, open val labe
 
 }
 
-data class IntRangeParameter(override val label : String, val range : IntRange) : OptimizableParameter<Int>(Int::class, label) {
+data class IntRangeParameter(override val label : String, val range : IntRange, override val default : Int) : OptimizableParameter<Int>(Int::class, label, default) {
     override fun minimise(history: Map<Int, Double>): Int? = range.firstOrNull { !history.containsKey(it) }
 }
 
-data class ValueListParameter<T : Any>(override val label : String, val values : List<T>) : OptimizableParameter<T>(values.first()::class as KClass<T>, label) {
+data class ValueListParameter<T : Any>(override val label : String, val values : List<T>) : OptimizableParameter<T>(values.first()::class as KClass<T>, label, values.first()) {
 
     constructor(label : String, vararg k : T) : this(label, k.toList())
 

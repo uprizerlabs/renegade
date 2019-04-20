@@ -3,6 +3,7 @@ package renegade.datasets.iris
 import mu.KotlinLogging
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.*
+import renegade.opt.OptConfig
 import renegade.supervised.*
 import java.util.zip.GZIPInputStream
 
@@ -60,7 +61,7 @@ fun irisClassifier(data : List<Pair<IrisMeasurements, IrisSpecies>>): SlowClassi
     builders += AdvancedDoubleDistanceModelBuilder("adv-sepalLength").map(IrisMeasurements::sepalLength)
     builders += AdvancedDoubleDistanceModelBuilder("adv-sepalWidth").map(IrisMeasurements::sepalWidth)
 
-    val classifier = buildSlowClassifier(data, builders)
+    val classifier = buildSlowClassifier(OptConfig(), data, builders)
 
     return classifier
 }

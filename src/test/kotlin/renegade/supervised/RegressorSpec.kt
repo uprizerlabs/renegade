@@ -4,6 +4,7 @@ import io.kotlintest.specs.FreeSpec
 import renegade.datasets.gen.sigmoidData
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
+import renegade.opt.OptConfig
 import renegade.util.math.*
 
 class RegressorSpec : FreeSpec() {
@@ -15,17 +16,15 @@ class RegressorSpec : FreeSpec() {
             "given a generated sigmoid curve" - {
                 val data: List<Pair<List<Double>, Double>> = sigmoidData()
                 "and a suitable Regressor configured with no extrapolation" - {
-                    val regressorNoExtrap = Regressor(
+                    // TODO: FIXME!
+                    val regressorNoExtrap = Regressor(OptConfig(),
                             trainingData = data,
-                            distanceModelBuilders = builders,
-                            minimumInsetSize = 2,
-                            extrapolate = false
+                            distanceModelBuilders = builders
                     )
                     val regressorWithExtrap = Regressor(
+                            OptConfig(),
                             trainingData = data,
-                            distanceModelBuilders = builders,
-                            minimumInsetSize = 2,
-                            extrapolate = true
+                            distanceModelBuilders = builders
                     )
                     "generate predictions" {
 
@@ -34,58 +33,10 @@ class RegressorSpec : FreeSpec() {
                             val x = xL.toDouble() / 10.0
                             println("$x\t${regressorWithExtrap.predict(listOf(x)).value}\t${regressorNoExtrap.predict(listOf(x)).value}")
                         }
-/*
-                        val (rmse, bias) = calculateRMSEBias(data, regressorNoExtrap)
-                        "verify that RMSE and bias are below thresholds" {
-                            rmse should beLessThanOrEqualTo(0.013)
-                            bias should beLessThanOrEqualTo(5e-4)
-                        }
-                        */
                     }
                 }
 
             }
-            /*
-            "given a generated sigmoid curve with values > 0.5 deleted with prob 0.5, creating a deliberate imbalance" - {
-                val random = Random(0)
-                val data = sigmoidData().filter { it.second < 0.5 || random.nextBoolean() }
-                "and given a regressor built without extrapolation" - {
-                    val regressorWithoutExtrapolation = Regressor(
-                            trainingData = data,
-                            distanceModelBuilders = builders,
-                            minimumInsetSize = 0,
-                            extrapolate = false
-                    )
-
-                    val regressorWithExtrapolation = Regressor(
-                            trainingData = data,
-                            distanceModelBuilders = builders,
-                            minimumInsetSize = 0,
-                            extrapolate = false
-                    )
-
-
-
-                    /* // Disabled because output balancing hurts performance, see https://www.evernote.com/l/AAQ1GZBZXFxDgqkY6REXlRT4_3ssnszZnkc
-                    "build a regressor with output balancing" - {
-                        val regressorWB = Regressor(
-                                trainingData = data,
-                                distanceModelBuilders = builders,
-                                minimumInsetSize = 0,
-                                balanceOutput = true
-                        )
-                        "calculate scores" {
-                            println("Without")
-                            val scoreWithout = calculateRMSEBias(data, regressorWOB)
-                            println("With")
-                            val scoreWith = calculateRMSEBias(data, regressorWB)
-                            scoreWith.first shouldBe lt(scoreWithout.first)
-                        }
-                    }
-                    */
-                }
-            }
-            */
         }
     }
 

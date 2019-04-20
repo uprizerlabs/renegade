@@ -16,7 +16,10 @@ interface OutputAggregator<ItemType, SummaryType, PredictionType> {
 
     fun prediction(of : SummaryType) : PredictionType
 
-    fun value(population: SummaryType, of: SummaryType) = bias(population, of) - variance(population, of)
+    fun value(population: SummaryType, of: SummaryType): Double {
+        val v = bias(population, of) - variance(population, of)
+        return v
+    }
 
 }
 

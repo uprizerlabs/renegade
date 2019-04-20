@@ -27,13 +27,13 @@ fun <InputType: Any> Regressor(
 
     logger.info("Building metric space")
 
-    val metricSpace = buildMetricSpace(trainingData, distanceModelBuilders)
+    val metricSpace = buildMetricSpace(cfg, trainingData, distanceModelBuilders)
 
     dumpTopModelContributions(metricSpace)
 
     val msi = buildMetricSpaceIndex(cfg, trainingData, metricSpace)
 
-    logger.info("Regressor built")
+    logger.info("Regressor built with configuration $cfg")
     return Regressor(cfg = cfg, index = msi)
 }
 
@@ -62,9 +62,10 @@ private fun <InputType : Any> dumpTopModelContributions(metricSpace: MetricSpace
             }
 }
 
-fun <InputType : Any> buildMetricSpace(trainingData: List<Pair<InputType, Double>>, distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>): MetricSpace<InputType, Double> {
+fun <InputType : Any> buildMetricSpace(cfg : OptConfig, trainingData: List<Pair<InputType, Double>>, distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>): MetricSpace<InputType, Double> {
     logger.info("Building metric space")
     val metricSpace = MetricSpace(
+            cfg = cfg,
             modelBuilders = distanceModelBuilders,
             trainingData = trainingData,
             outputDistance = { a, b -> abs(a - b) }

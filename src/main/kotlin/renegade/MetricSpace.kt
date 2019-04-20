@@ -1,11 +1,12 @@
 package renegade
 
-import com.google.common.collect.Iterables
 import mu.KotlinLogging
+import renegade.MetricSpace.Parameters.learningRate
+import renegade.MetricSpace.Parameters.maxModelCount
+import renegade.MetricSpace.Parameters.maxSamples
 import renegade.distanceModelBuilder.*
 import renegade.opt.*
 import renegade.util.*
-import renegade.util.math.sqr
 import java.io.Serializable
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -20,35 +21,18 @@ import java.util.stream.Collectors
 private val logger = KotlinLogging.logger {}
 
 class MetricSpace<InputType : Any, OutputType : Any>(
-    val modelBuilders: List<DistanceModelBuilder<InputType>>,
-    val trainingData: List<Pair<InputType, OutputType>>,
-    val maxSamples: Int = Math.min(1_000_000, Iterables.size(trainingData).sqr).toInt(),
-    val learningRate: Double = 0.1, val maxIterations: Int? = null,
-    val maxModelCount: Int? = null,
-    val outputDistance: (OutputType, OutputType) -> Double
+        val cfg : OptConfig,
+        val modelBuilders: List<DistanceModelBuilder<InputType>>,
+        val trainingData: List<Pair<InputType, OutputType>>, // TODO: We shouldn't have to serialize this
+        val maxIterations: Int? = null,
+        val outputDistance: (OutputType, OutputType) -> Double
 ) : (Two<InputType>) -> Double, Serializable {
 
     private object Parameters {
-        val maxSamples = ValueListParameter("maxSamples", 100, 1_000, 10_000, 100_000, 1_000_000, 10_000_000)
-        val learningRate = ValueListParameter("learningRate", 0.01, 0.05, 0.1, 0.2, 0.5, 1.0)
-        val maxModelCount = ValueListParameter("maxModelCount", 4, 8, 16, 32, 64, 128, 256, 1024, 10240)
+        val maxSamples = ValueListParameter("maxSamples", 1_000_000, 1_000, 10_000, 100_000, 10_000_000, 100_000_000)
+        val learningRate = ValueListParameter("learningRate", 0.1, 0.01, 0.05,  0.2, 0.5, 1.0)
+        val maxModelCount = ValueListParameter<Int>("maxModelCount", 64, 4, 8, 16, 32, 128, 256, 1024, 10240)
     }
-
-    constructor(
-            cfg : OptConfig,
-             modelBuilders: List<DistanceModelBuilder<InputType>>,
-             trainingData: List<Pair<InputType, OutputType>>,
-             maxIterations: Int? = null,
-             outputDistance: (OutputType, OutputType) -> Double
-    ) : this(
-            modelBuilders,
-            trainingData,
-            cfg.get<Int>(Parameters.maxSamples),
-            cfg[Parameters.learningRate],
-            maxIterations,
-            cfg[Parameters.maxModelCount],
-            outputDistance
-    )
 
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)
 
@@ -67,7 +51,8 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         require(modelBuilders.isNotEmpty()) { "Must have at least one modelBuilders regressor" }
         require(trainingData.isNotEmpty()) { "Must have at least one training instance" }
 
-        val distancePairs = InputPairSampler(trainingData, outputDistance).sample(maxSamples).asSequence().splitTrainTest(2)
+        // TODO: Do we want to sample pairs from the training data *after* splitting?
+        val distancePairs = InputPairSampler(trainingData, outputDistance).sample(cfg[maxSamples]).asSequence().splitTrainTest(2)
 
         distancePairs.train.map {it.dist}.average().let {averageDistance ->
             logger.info("Average distance of training distance pairs is $averageDistance")
@@ -91,20 +76,20 @@ class MetricSpace<InputType : Any, OutputType : Any>(
             val modelsDescendingByContribution = DistanceModelRanker(distancePairs.test).rank(initialDistanceModels)
 
             val distanceModels: List<DistanceModel<InputType>> =
-                if (maxModelCount != null && initialDistanceModels.size > maxModelCount) {
+                if (initialDistanceModels.size > cfg[maxModelCount]) {
                     // TODO: doing the build() twice shouldn't be necessary, but was the path of least resistance
                     // TODO: at the time of writing.
-                    logger.info("Selecting best $maxModelCount models and regenerating.")
+                    logger.info("Selecting best ${cfg[maxModelCount]} models and regenerating.")
                     modelsDescendingByContribution
-                        .take(maxModelCount)
+                        .take(cfg[maxModelCount])
                         .parallelStream()
                         .map { indexScore ->
-                            modelBuilders[indexScore.index].build(distancePairs.train, 1.0 / maxModelCount)
+                            modelBuilders[indexScore.index].build(distancePairs.train, 1.0 / cfg[maxModelCount])
                         }.collect(Collectors.toCollection { CopyOnWriteArrayList<DistanceModel<InputType>>() })
                 } else initialDistanceModels
 
 
-            val refiner = ModelRefiner(distanceModels, modelBuilders, distancePairs.train, learningRate)
+            val refiner = ModelRefiner(distanceModels, modelBuilders, distancePairs.train, cfg[learningRate])
 
             val rmsesByIteration = ArrayList<Double>()
 
