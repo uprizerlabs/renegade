@@ -15,7 +15,7 @@ import java.util.zip.GZIPInputStream
 
 private val logger = KotlinLogging.logger {}
 
-fun main(args: Array<String>) {
+fun main() {
 
     val data = loadIrisDataset()
 

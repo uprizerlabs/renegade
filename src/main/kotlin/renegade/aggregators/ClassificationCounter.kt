@@ -38,4 +38,8 @@ class ClassificationCounter<ItemType : Any>(
             }
         }
     }
+
+    override fun toString(): String {
+        return "ClassificationCounter(${toCountMap()}, ttl: $total"
+    }
 }

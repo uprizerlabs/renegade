@@ -2,14 +2,17 @@ package renegade.aggregators
 
 import renegade.util.math.stats.BetaDistribution
 import java.io.Serializable
+import kotlin.math.round
 
-private const val POPULATION_WEIGHT = 2.0
+private const val POPULATION_WEIGHT = 5.0
 
 class ClassificationAggregator<ItemType : Any> : OutputAggregator<ItemType, ClassificationCounter<ItemType>, Map<ItemType, Double>>, Serializable {
     override fun initialize(population: ClassificationCounter<ItemType>?): ClassificationCounter<ItemType> {
         val cc = ClassificationCounter<ItemType>()
         if (population != null) {
-            population.toProbabilityMap().forEach { item, count -> cc.addWithCount(item, count * POPULATION_WEIGHT) }
+            val pm = population.toProbabilityMap()
+            val minProb  = pm.values.min() ?: throw RuntimeException("population is empty")
+            pm.forEach { item, count -> cc.addWithCount(item, count * POPULATION_WEIGHT / minProb) }
         }
         return cc
     }
@@ -20,6 +23,9 @@ class ClassificationAggregator<ItemType : Any> : OutputAggregator<ItemType, Clas
     }
 
     override fun bias(population: ClassificationCounter<ItemType>, of: ClassificationCounter<ItemType>): Double {
+       // val minThreshold = round(1.0 / population.toProbabilityMap().map { it.value }.min()!!) * 10
+      //  if (of.total < minThreshold) return 0.0
+
         val popMap = population.toProbabilityMap()
         val ofMap = of.toProbabilityMap()
         return popMap.entries.map { (k, v) ->

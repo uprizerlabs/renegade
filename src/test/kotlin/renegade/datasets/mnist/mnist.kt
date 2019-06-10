@@ -29,8 +29,9 @@ fun main(args: Array<String>) {
 
     logger.info("Loading dataset")
 
-    val data: List<Pair<List<Double>, Int>> = Spiral().generate(samples = 100000)
-     // loadMnistDataset("mnist_train.csv.gz").map { Pair(it.first.map { it.toDouble() }, it.second) }
+    val data: List<Pair<List<Double>, Int>> = // Spiral().generate(samples = 100000)
+      loadMnistDataset("mnist_train.csv.gz").map { Pair(it.first.map { it.toDouble() }, it.second) }
+
 
     var currentFeatureTransformers: MutableList<FeatureExtractor> = ArrayList()
 

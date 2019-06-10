@@ -26,10 +26,10 @@ internal fun <InputType : Any, OutputType : Any> buildDistanceFunction(cfg : Opt
             ?.value
             ?.map { metricSpace.distanceModelList[it.key] to it.value }
             ?.sortedByDescending { it.second }
-            ?.take(10)?.let { top10 ->
-                logger.info("Top 10 contributing distance models:")
+            ?.take(40)?.let { top ->
+                logger.info("Top 40 contributing distance models:")
                 logger.info("label\tscore")
-                for (it in top10) {
+                for (it in top) {
                     logger.info("${it.first.label}\t${it.second}")
                 }
     }

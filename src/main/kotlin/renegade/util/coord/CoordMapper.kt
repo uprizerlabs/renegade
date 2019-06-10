@@ -45,7 +45,7 @@ private fun <I : Any, O : Any> findWaypoints(metricSpace: MetricSpace<I, O>, dim
     val waypoints: MutableSet<I>
     waypoints = mutableSetOf(initialPair.inputs.first, initialPair.inputs.second)
 
-    for (n in 2..(dimensionality - 1)) {
+    for (n in 2 until dimensionality) {
         val best = raTraining.drop(r.nextInt(raTraining.size - searchDepth)).take(searchDepth).map { candidate ->
             val totalDistance = waypoints.map { waypoint -> abs(metricSpace.estimateDistance(Two(waypoint, candidate.first))) }.sum()
             candidate.first to totalDistance
