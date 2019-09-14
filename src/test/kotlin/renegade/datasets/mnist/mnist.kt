@@ -20,7 +20,7 @@ import java.util.zip.GZIPInputStream
 private val logger = KotlinLogging.logger {}
 
 val pairsToTest = 5
-val maxSamples = 100000
+val maxSamples = 10_000_000
 val transformersToRetain = 5
 
 fun main(args: Array<String>) {
@@ -32,6 +32,7 @@ fun main(args: Array<String>) {
     val data: List<Pair<List<Double>, Int>> = // Spiral().generate(samples = 100000)
       loadMnistDataset("mnist_train.csv.gz").map { Pair(it.first.map { it.toDouble() }, it.second) }
 
+    logger.info("Loaded ${data.size} dataset")
 
     var currentFeatureTransformers: MutableList<FeatureExtractor> = ArrayList()
 

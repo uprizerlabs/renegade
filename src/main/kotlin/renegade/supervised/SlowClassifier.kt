@@ -33,7 +33,7 @@ fun <InputType : Any, OutputType : Any> buildSlowClassifier(
     return SlowClassifier(msi)
 }
 
-class SlowClassifier<InputType : Any, OutputType : Any> internal constructor(
+class SlowClassifier<InputType : Any, OutputType : Any>(
         val index: MetricSpaceIndex<Pair<InputType, OutputType?>, Double>
 ) : Classifier<InputType, OutputType> {
 

@@ -88,14 +88,14 @@ class WaypointIndex<ItemType : Any>(
                 .map { (item, priority) -> WaypointIndexResult(item, priority, this) }
     }
 
-    internal fun calculateVectorDistance(soughtItemVector: List<Double>, item: ItemType): Prioritized<ItemType, Double> {
+    fun calculateVectorDistance(soughtItemVector: List<Double>, item: ItemType): Prioritized<ItemType, Double> {
         val itemVector = itemVectors[item] ?:
                 throw NullPointerException("Item $item not found in itemVectors map")
         val vectorDistance = soughtItemVector distanceTo itemVector
         return Prioritized(item, vectorDistance)
     }
 
-    internal fun calculateActualDistance(soughtItem: ItemType, candidateItem: ItemType): Prioritized<ItemType, Double> {
+    fun calculateActualDistance(soughtItem: ItemType, candidateItem: ItemType): Prioritized<ItemType, Double> {
         val dist = distanceFunction(Two(soughtItem, candidateItem))
         return Prioritized(candidateItem, dist)
     }

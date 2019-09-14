@@ -51,7 +51,7 @@ class DistanceModelRanker<out InputType : Any>(private val testPairs: List<Input
     }
 }
 
-internal fun Sequence<List<Contribution>>.averages(): List<Contribution> {
+fun Sequence<List<Contribution>>.averages(): List<Contribution> {
     val stats = Array(this.first().size, { SummaryStatistics() })
     for (ar in this) {
         ar.withIndex().forEach { (ix, c) -> stats[ix].addValue(c) }

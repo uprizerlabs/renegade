@@ -30,7 +30,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
 
     private object Parameters {
         val maxSamples = ValueListParameter("maxSamples", 1_000_000, 1_000, 10_000, 100_000, 10_000_000, 100_000_000)
-        val learningRate = ValueListParameter("learningRate", 0.1, 0.01, 0.05,  0.2, 0.5, 1.0)
+        val learningRate = ValueListParameter("learningRate", 0.01, 0.1, 0.05,  0.2, 0.5, 1.0)
         val maxModelCount = ValueListParameter<Int>("maxModelCount", 64, 4, 8, 16, 32, 128, 256, 1024, 10240)
     }
 
@@ -51,7 +51,6 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         require(modelBuilders.isNotEmpty()) { "Must have at least one modelBuilders regressor" }
         require(trainingData.isNotEmpty()) { "Must have at least one training instance" }
 
-        // TODO: Do we want to sample pairs from the training data *after* splitting?
         val distancePairs = InputPairSampler(trainingData, outputDistance).sample(cfg[maxSamples]).asSequence().splitTrainTest(2)
 
         distancePairs.train.map {it.dist}.average().let {averageDistance ->
