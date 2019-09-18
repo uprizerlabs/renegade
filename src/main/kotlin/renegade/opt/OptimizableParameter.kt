@@ -11,7 +11,13 @@ private val logger = KotlinLogging.logger {}
 
 // private val usedLabels = ConcurrentSkipListSet<String>()
 
-abstract class OptimizableParameter<T : Any>(val type : KClass<T>, open val label : String, open val default : T) : Serializable {
+abstract class OptimizableParameter<T : Any>() : Serializable {
+
+    abstract val type : KClass<T>
+
+    abstract val label : String
+
+    abstract val default : T
 
     init {
 //        require(usedLabels.add(label)) { "Label '$label' already used, OptimizableParameter labels must be unique" }
@@ -36,16 +42,27 @@ abstract class OptimizableParameter<T : Any>(val type : KClass<T>, open val labe
 
 }
 
-data class IntRangeParameter(override val label : String, val range : IntRange, override val default : Int) : OptimizableParameter<Int>(Int::class, label, default) {
+data class IntRangeParameter(override val label : String, val range : IntRange, override val default : Int) : OptimizableParameter<Int>() {
+    override val type: KClass<Int>
+        get() = Int::class
+
+
     override fun randomSample() = range.random()
 }
 
-data class DoubleRangeParameter(override val label : String, val range : Pair<Double, Double>, override val default : Double = min(range.second, max(1.0, range.first))) : OptimizableParameter<Double>(Double::class, label, default) {
+data class DoubleRangeParameter(override val label : String, val range : Pair<Double, Double>, override val default : Double = min(range.second, max(1.0, range.first))) : OptimizableParameter<Double>() {
+    override val type: KClass<Double>
+        get() = Double::class
 
     override fun randomSample(): Double = (random.nextDouble() * (range.second - range.first)) + range.first
 }
 
-data class ValueListParameter<T : Any>(override val label : String, val values : List<T>) : OptimizableParameter<T>(values.first()::class as KClass<T>, label, values.first()) {
+data class ValueListParameter<T : Any>(override val label : String, val values : List<T>) : OptimizableParameter<T>() {
+    override val type: KClass<T>
+        get() = values.first()::class as KClass<T>
+
+    override val default: T = values.first()
+
     override fun randomSample(): T = values.random()
 
     constructor(label : String, vararg k : T) : this(label, k.toList())

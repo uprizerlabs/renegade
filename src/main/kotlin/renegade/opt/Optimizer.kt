@@ -6,12 +6,8 @@ import java.nio.file.Path
 import java.time.Instant
 import com.github.salomonbrys.kotson.*
 import com.google.gson.*
-import com.google.gson.typeadapters.RuntimeTypeAdapterFactory
-
-
-private val gson = Converters.registerInstant(GsonBuilder())
-        .registerTypeAdapter(OptConfig::class.java, OptConfigTypeAdaptor())
-        .create()
+import renegade.util.KClassTypeAdaptor
+import kotlin.reflect.KClass
 
 class Optimizer(
         val logFile : Path,
@@ -19,23 +15,51 @@ class Optimizer(
         toOptimize : (OptConfig) -> Double,
         randomSearchThreshold : Int = 20
 ) {
+    companion object {
+        val gson = Converters.registerInstant(GsonBuilder())
+                .registerTypeAdapter(OptConfig::class.java, OptConfigTypeAdaptor())
+                .registerTypeAdapter(KClass::class.java, KClassTypeAdaptor())
+                .create()
+    }
+
+    @Volatile
+    private var hasWrittenParameters = false
+
     private val log = Files.readAllLines(logFile).map {
         gson.fromJson<OptimizationRun>(it)
     }.toMutableList()
 
-    private val parameters = HashSet<OptimizableParameter<*>>()
+    @Volatile
+    private var parameters = log.mapNotNull { it.config.parameters }.lastOrNull()
 
     init {
 
     }
 
-    private fun checkForNewParameters(or : OptimizationRun) {
-
+    private fun generateOptConfig() : OptConfig {
+        val cfg = OptConfig()
+        parameters.let { param ->
+            if (param != null) {
+                for (p in param.values) {
+                    cfg.options[p.label] = p.randomSample()
+                }
+            }
+        }
+        return cfg
     }
 
     private fun logRun(or : OptimizationRun) {
+        or.config.parameters.let { p ->
+            if (p != null) {
+                parameters = p
+            }
+        }
+        if (hasWrittenParameters) {
+            or.config.parameters = null
+        }
         logFile.toFile().appendText(gson.toJson(or)+"\n")
         log += or
+        hasWrittenParameters = true
     }
 
     enum class Goal {
