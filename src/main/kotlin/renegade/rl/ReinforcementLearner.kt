@@ -1,15 +1,26 @@
 package renegade.rl
 
+import renegade.MetricSpace
+import renegade.opt.OptConfig
+import java.util.*
 import java.util.concurrent.*
 
 sealed class ActionValue {
-    data class Integer(val minimum : Int?, val maximum : Int?) : ActionValue()
-    data class Category<T : Any>(val values : List<T>)
+    data class Integer(val minimum: Int?, val maximum: Int?) : ActionValue()
+    data class Category<T : Any>(val values: List<T>)
 }
 
-class ReinforcementLearner(val historyStore: HistoryStore = MemoryHistoryStore(), val actionSchema : Map<String, ActionValue>) {
+class ReinforcementLearner(val historyStore: HistoryStore = MemoryHistoryStore(), val actionSchema: Map<String, ActionValue>) {
 
+    val metricSpace = MetricSpace<Int, RewardMap>(OptConfig(), emptyList(), emptyList(), null, outputDistance = { a, b ->
+
+        TODO()
+    }
+    )
 }
+
+class RewardMap(val currentTime : Double, val rewards : TreeMap<Double, Double>)
+
 
 interface HistoryStore {
     fun record(instance: Instance)
@@ -25,8 +36,8 @@ class MemoryHistoryStore : HistoryStore {
     }
 
     override fun retrieve(): List<Instance> = instances.asSequence().toList()
-
 }
+
 
 data class Instance(val context: TypedMap, val action: TypedMap, val outcome: TypedMap)
 

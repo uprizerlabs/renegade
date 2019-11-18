@@ -62,6 +62,8 @@ dependencies {
     implementation group: 'org.tukaani', name: 'xz', version: '1.6'
     compile group: 'org.danilopianini', name: 'gson-extras', version: '0.2.1'
 
+    compile 'com.eatthepath:jvptree:0.2'
+
     implementation("com.squareup.moshi:moshi:1.8.0")
 
     // Logging
@@ -70,6 +72,7 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.26'
     
     testCompile 'io.kotlintest:kotlintest:2.0.7'
+    compile 'com.google.guava:guava:28.1-jre'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
