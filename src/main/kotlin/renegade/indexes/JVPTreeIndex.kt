@@ -5,6 +5,9 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import renegade.util.Two
 
+// TODO: Regressor should know how many to ask for, which it can determine through random testing on the dataset (error
+//       between predicted value based on peers versus actual)
+
 class JVPTreeIndex<ItemType : Any>(uncachedDistFunc: (Two<ItemType>) -> Double) : MetricSpaceIndex<ItemType, Double>(uncachedDistFunc) {
 
     private val distFunc = CacheBuilder.newBuilder()
