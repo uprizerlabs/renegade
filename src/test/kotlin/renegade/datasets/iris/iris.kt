@@ -55,12 +55,12 @@ fun irisClassifier(data : List<Pair<IrisMeasurements, IrisSpecies>>): SlowClassi
         }
     }
 */
-
+/*
     builders += AdvancedDoubleDistanceModelBuilder("adv-petalLength").map(IrisMeasurements::petalLength)
     builders += AdvancedDoubleDistanceModelBuilder("adv-petalWidth").map(IrisMeasurements::petalWidth)
     builders += AdvancedDoubleDistanceModelBuilder("adv-sepalLength").map(IrisMeasurements::sepalLength)
     builders += AdvancedDoubleDistanceModelBuilder("adv-sepalWidth").map(IrisMeasurements::sepalWidth)
-
+*/
     val classifier = buildSlowClassifier(OptConfig(), data, builders)
 
     return classifier

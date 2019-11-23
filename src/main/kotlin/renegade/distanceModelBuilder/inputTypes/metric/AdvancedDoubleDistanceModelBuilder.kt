@@ -1,5 +1,5 @@
 package renegade.distanceModelBuilder.inputTypes.metric
-
+/*
 import renegade.distanceModelBuilder.*
 import renegade.opt.OptConfig
 import renegade.supervised.Regressor
@@ -27,3 +27,5 @@ class AdvancedDoubleDistanceModelBuilder(override val label: String) : DistanceM
 class AdvancedDoubleDistanceModel(label: String, val regressor: Regressor<Two<Double>>) : DistanceModel<Double>(label, { two ->
     regressor.predict(two).value
 })
+
+ */

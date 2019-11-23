@@ -19,6 +19,7 @@ data class WaypointIndexConfig(
         val lookAhead: Int = 100,
         val vectorLookAhead: Int = lookAhead * 10) : Serializable
 
+@Deprecated(message = "Deprecated for JVP tree")
 class WaypointIndex<ItemType : Any>(
         val cfg : OptConfig,
         val distance: (Two<ItemType>) -> Double,

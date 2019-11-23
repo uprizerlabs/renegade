@@ -6,7 +6,7 @@ import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import renegade.opt.OptConfig
 import renegade.util.math.*
-
+/*
 class RegressorSpec : FreeSpec() {
 
     init {
@@ -58,3 +58,5 @@ class RegressorSpec : FreeSpec() {
     }
 
 }
+
+ */

@@ -23,7 +23,7 @@ val pairsToTest = 5
 val maxSamples = 10_000_000
 val transformersToRetain = 5
 
-fun main(args: Array<String>) {
+fun main() {
 
     logger.info("Running test, pairsToTest: $pairsToTest, maxSamples: $maxSamples")
 

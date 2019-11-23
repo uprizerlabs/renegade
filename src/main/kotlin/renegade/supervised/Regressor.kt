@@ -17,7 +17,7 @@ private val logger = KotlinLogging.logger {}
  Temporary notes for extrapolation
 
  http://commons.apache.org/proper/commons-math/javadocs/api-3.3/org/apache/commons/math3/stat/regression/SimpleRegression.html#getIntercept()
-  */
+
 
 fun <InputType: Any> Regressor(
         cfg : OptConfig,
@@ -125,3 +125,5 @@ class Regressor<InputType : Any>(
 
     data class Prediction(val value : Double, val inSetSize : Int)
 }
+
+ */

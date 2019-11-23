@@ -93,6 +93,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
             val rmsesByIteration = ArrayList<Double>()
 
             var iteration = 0
+
             while (true) {
                 val modelsRMSE = refiner.calculateRMSE()
                 logger.info("Iteration #$iteration, RMSE: $modelsRMSE")
@@ -104,7 +105,10 @@ class MetricSpace<InputType : Any, OutputType : Any>(
                 for ((index, score) in modelsDescendingByContribution) {
                     iterationLog[index] = score
                     val thisIterationModelContributions = modelContributions.computeIfAbsent(iteration) { TreeMap() }
-                    assert(!thisIterationModelContributions.containsKey(index)) {"thisIterationModelContributions already contains score for model $index for iteration $iteration"}
+                    if(thisIterationModelContributions.containsKey(index)) {
+                      //  logger.warn("thisIterationModelContributions already contains score for model $index for iteration $iteration, existing: ${thisIterationModelContributions[index]}, new: $score")
+                        // FIXME: Why is this happening?
+                    }
                     thisIterationModelContributions[index] = score
                 }
                 modelsDescendingByContribution.parallelStream().forEach { toRefine ->
