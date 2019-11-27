@@ -20,12 +20,14 @@ import java.util.stream.Collectors
 
 private val logger = KotlinLogging.logger {}
 
+typealias Distance = Double
+
 class MetricSpace<InputType : Any, OutputType : Any>(
         val cfg : OptConfig,
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
         val trainingData: List<Pair<InputType, OutputType>>, // TODO: We shouldn't have to serialize this
         val maxIterations: Int? = null,
-        val outputDistance: (OutputType, OutputType) -> Double
+        val outputDistance: (OutputType, OutputType) -> Distance
 ) : (Two<InputType>) -> Double, Serializable {
 
     private object Parameters {
