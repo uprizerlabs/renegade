@@ -2,9 +2,9 @@ package renegade.datasets.iris
 
 import mu.KotlinLogging
 import renegade.distanceModelBuilder.DistanceModelBuilder
-import renegade.distanceModelBuilder.inputTypes.metric.*
+import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import renegade.opt.OptConfig
-import renegade.supervised.*
+import renegade.supervised.classification.Classifier
 import java.util.zip.GZIPInputStream
 
 /**
@@ -19,7 +19,8 @@ fun main() {
 
     val data = loadIrisDataset()
 
-    val classifier = irisClassifier(data)
+    val classifier = Classifier(OptConfig(), data, getBuilders(data))
+
 
 }
 
@@ -38,13 +39,13 @@ fun loadIrisDataset(): List<Pair<IrisMeasurements, IrisSpecies>> {
     }.toList()
 }
 
-fun irisClassifier(data : List<Pair<IrisMeasurements, IrisSpecies>>): SlowClassifier<IrisMeasurements, IrisSpecies> {
+private fun getBuilders(data: List<Pair<IrisMeasurements, IrisSpecies>>): ArrayList<DistanceModelBuilder<IrisMeasurements>> {
     val builders = ArrayList<DistanceModelBuilder<IrisMeasurements>>()
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalLength)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalWidth)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalLength)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::sepalWidth)
-/*
+
     for (builder in ArrayList(builders)) {
         for (exp in listOf(0.25, 0.5, 0.75, 1.25, 1.5, 2.0, 4.0)) {
             builders += DoubleDistanceModelBuilder(label = "petalLength^$exp").map { it -> Math.pow(it.petalLength, exp) }
@@ -54,16 +55,8 @@ fun irisClassifier(data : List<Pair<IrisMeasurements, IrisSpecies>>): SlowClassi
 
         }
     }
-*/
-/*
-    builders += AdvancedDoubleDistanceModelBuilder("adv-petalLength").map(IrisMeasurements::petalLength)
-    builders += AdvancedDoubleDistanceModelBuilder("adv-petalWidth").map(IrisMeasurements::petalWidth)
-    builders += AdvancedDoubleDistanceModelBuilder("adv-sepalLength").map(IrisMeasurements::sepalLength)
-    builders += AdvancedDoubleDistanceModelBuilder("adv-sepalWidth").map(IrisMeasurements::sepalWidth)
-*/
-    val classifier = buildSlowClassifier(OptConfig(), data, builders)
 
-    return classifier
+    return builders
 }
 
 private infix fun ClosedRange<Double>.step(step: Double): Iterable<Double> {
