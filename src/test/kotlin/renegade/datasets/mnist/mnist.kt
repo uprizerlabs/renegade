@@ -5,7 +5,7 @@ import renegade.MetricSpace
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import renegade.opt.OptConfig
-import renegade.supervised.VertexPointSupervisedLearner
+import renegade.supervised.VertexPointLearner
 import renegade.supervised.classification.Classifier
 import java.util.zip.GZIPInputStream
 
@@ -35,10 +35,10 @@ class MNist {
         logger.info("Building classifier")
 
         val cfg = OptConfig()
-        cfg[VertexPointSupervisedLearner.Parameters.multithreadDistance] = false
+        cfg[VertexPointLearner.Parameters.multithreadDistance] = false
         cfg[MetricSpace.Parameters.maxSamples] = 10_000
         cfg[MetricSpace.Parameters.maxModelCount] = Integer.MAX_VALUE
-        cfg[VertexPointSupervisedLearner.Parameters.sampleSize] = 1000
+        cfg[VertexPointLearner.Parameters.sampleSize] = 1000
         val classifier = Classifier(cfg, trainingData, builders)
     }
 

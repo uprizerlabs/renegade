@@ -1,6 +1,6 @@
 package renegade.supervised.regression
 
-import renegade.supervised.regression.Regression.Prediction
+import renegade.supervised.regression.RegressionLearner.Prediction
 import kotlin.math.abs
 
 interface RegressionStrategy {

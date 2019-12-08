@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import renegade.aggregators.ItemWithDistance
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.opt.OptConfig
-import renegade.supervised.VertexPointSupervisedLearner
+import renegade.supervised.VertexPointLearner
 
 private val logger = KotlinLogging.logger {}
 
@@ -14,10 +14,10 @@ class Classifier<InputType : Any, OutputType : Any>(
         distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>
 ) {
 
-    val vertexPointSupervisedLearner: VertexPointSupervisedLearner<InputType, OutputType, Prediction<OutputType>>
+    val vertexPointLearner: VertexPointLearner<InputType, OutputType, Prediction<OutputType>>
 
     init {
-        vertexPointSupervisedLearner = VertexPointSupervisedLearner(
+        vertexPointLearner = VertexPointLearner(
                 cfg = cfg,
                 trainingData = trainingData,
                 distanceModelBuilders = distanceModelBuilders,
@@ -25,7 +25,7 @@ class Classifier<InputType : Any, OutputType : Any>(
                 predictionAggregator = this::predictionAggregator,
                 predictionError = { actual: OutputType, prediction -> 1.0 - prediction[actual] }
         )
-        vertexPointSupervisedLearner.insetSize // TODO: This should be done in the constructor
+        vertexPointLearner.insetSize // TODO: This should be done in the constructor
     }
 
     private fun predictionAggregator(items: Collection<ItemWithDistance<OutputType>>): Prediction<OutputType> {

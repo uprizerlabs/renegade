@@ -13,8 +13,8 @@ import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.opt.IntRangeParameter
 import renegade.opt.OptConfig
 import renegade.opt.ValueListParameter
-import renegade.supervised.VertexPointSupervisedLearner.Parameters.distanceCacheSize
-import renegade.supervised.VertexPointSupervisedLearner.Parameters.sampleSize
+import renegade.supervised.VertexPointLearner.Parameters.distanceCacheSize
+import renegade.supervised.VertexPointLearner.Parameters.sampleSize
 import renegade.util.Two
 import renegade.util.math.sqrt
 import java.util.concurrent.TimeUnit
@@ -24,8 +24,7 @@ import kotlin.math.min
 
 private val logger = KotlinLogging.logger {}
 
-
-class VertexPointSupervisedLearner<InputType : Any, OutputType : Any, PredictionType : Any>(
+class LSHLearner<InputType : Any, OutputType : Any, PredictionType : Any>(
         val cfg: OptConfig,
         trainingData: List<Pair<InputType, OutputType>>,
         distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>,
@@ -42,14 +41,6 @@ class VertexPointSupervisedLearner<InputType : Any, OutputType : Any, Prediction
             .build(object : CacheLoader<Two<InputType>, Distance>() {
                 override fun load(key: Two<InputType>) = metricSpace.estimateDistance(key)
             })
-
-    private val vpIndex: VPTree<Pair<InputType, OutputType?>, Pair<InputType, OutputType?>> = run {
-        logger.info("Building vpIndex with ${trainingData.size} training instances")
-        val vpt = VPTree<Pair<InputType, OutputType?>, Pair<InputType, OutputType?>> { a, b -> distanceCache[Two(a.first, b.first)] }
-        vpt.addAll(trainingData)
-        logger.info("vpIndex built.  distanceCache size:${distanceCache.size()}")
-        vpt
-    }
 
     object Parameters {
         val distanceCacheSize = IntRangeParameter("distanceCacheSize", 1_000..1_000_000, 1_000_000)
