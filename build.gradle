@@ -36,6 +36,8 @@ junitPlatform {
 }
 */
 
+apply plugin: 'maven'
+
 apply plugin: 'kotlin'
 
 apply plugin: "info.solidsoft.pitest"
@@ -43,7 +45,10 @@ apply plugin: "info.solidsoft.pitest"
 repositories {
     mavenCentral()
     jcenter()
-    maven { url 'https://jitpack.io' }
+    maven {
+        url "https://jitpack.io"
+        credentials { username authToken }
+    }
     maven {url "https://dl.bintray.com/kotlin/kotlin-eap"}
 }
 
