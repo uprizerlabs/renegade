@@ -1,17 +1,15 @@
 package renegade.supervised
 
 import renegade.Distance
+import renegade.MetricSpace
 import renegade.aggregators.ItemWithDistance
-import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.opt.OptConfig
 
 abstract class Learner<InputType : Any, OutputType : Any, PredictionType : Any>(
-        val cfg: OptConfig,
-        val outputDistance: (OutputType, OutputType) -> Distance,
-        val predictionAggregator: (Collection<ItemWithDistance<OutputType>>) -> PredictionType,
-        val predictionError: (OutputType, PredictionType) -> Double
+        open val cfg: OptConfig,
+        open val schema : DataSchema<InputType, OutputType, PredictionType>
 ) {
-    abstract fun learn(data: List<Pair<InputType, OutputType>>, distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>) : LearnedModel<InputType, OutputType, PredictionType>
+    abstract fun learn(metric: MetricSpace<InputType, OutputType>, data: List<Pair<InputType, OutputType>>) : LearnedModel<InputType, OutputType, PredictionType>
 }
 
 interface LearnedModel<InputType : Any, OutputType : Any, PredictionType : Any> {
@@ -30,3 +28,7 @@ interface PredictionStrategy<InputType : Any, OutputType : Any, PredictionType :
 interface Predictor<InputType : Any, OutputType : Any, PredictionType : Any> {
     fun search(input : InputType) : PredictionType
 }
+
+class DataSchema<InputType : Any, OutputType : Any, PredictionType : Any>(val outputDistance: (OutputType, OutputType) -> Distance,
+                                                                           val predictionAggregator: (Collection<ItemWithDistance<OutputType>>) -> PredictionType,
+                                                                           val predictionError: (OutputType, PredictionType) -> Double)

@@ -25,7 +25,7 @@ class Classifier<InputType : Any, OutputType : Any>(
                 predictionAggregator = this::predictionAggregator,
                 predictionError = { actual: OutputType, prediction -> 1.0 - prediction[actual] }
         )
-        vertexPointLearner.insetSize // TODO: This should be done in the constructor
+        vertexPointLearner.insetSizeOverride // TODO: This should be done in the constructor
     }
 
     private fun predictionAggregator(items: Collection<ItemWithDistance<OutputType>>): Prediction<OutputType> {
