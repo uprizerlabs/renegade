@@ -10,6 +10,8 @@ import renegade.opt.OptConfig
 import renegade.opt.ValueListParameter
 import renegade.supervised.VertexPointLearner.Parameters.sampleSize
 import renegade.util.Two
+import renegade.util.math.sqr
+import renegade.util.math.sqrt
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import kotlin.math.min
@@ -44,10 +46,13 @@ class VertexPointLearner<InputType : Any, OutputType : Any, PredictionType : Any
             var bestSoFar: Best? = null
             for (testInsetSize in 2..(sampleSize / 2)) {
                 val sw = Stopwatch.createStarted()
-                val rmse = samples.map { (i, o) ->
-                    val prediction = vpIndex.getNearestNeighbors((i to null), testInsetSize)
-                    val error = predictionError(o, prediction)
-                    error * error
+                val rmse = samples.map { (sampleInput, sampleOutput) ->
+                    val nearest = vpIndex.getNearestNeighbors((sampleInput to null), testInsetSize)
+                    val prediction = schema.predictionAggregator(nearest.mapNotNull {
+                        ItemWithDistance(it.second
+                                ?: error("Output cannot be null"), metric.estimateDistance(Two(it.first, sampleInput)))
+                    })
+                    schema.predictionError(sampleOutput, prediction).sqr
                 }.average().sqrt
 
                 if (bestSoFar == null || rmse < bestSoFar.rmse) {
@@ -59,7 +64,6 @@ class VertexPointLearner<InputType : Any, OutputType : Any, PredictionType : Any
                 }
             }
             logger.info("Best inset: $bestSoFar")
-            logger.info("Cache stats after insetTest: ${distanceCache.stats()}")
             bestSoFar!!.insetSize
         }
 
