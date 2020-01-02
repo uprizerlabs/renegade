@@ -15,6 +15,7 @@ import renegade.util.math.sqrt
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import kotlin.math.min
+import kotlin.math.pow
 
 
 private val logger = KotlinLogging.logger {}

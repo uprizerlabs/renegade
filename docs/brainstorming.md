@@ -14,3 +14,7 @@ averages out.
 
 what is "true" is uncorrelated, in machine learning as 
 in politics.
+
+# Waypoint learner
+
+# Create separate project - renegade-concept

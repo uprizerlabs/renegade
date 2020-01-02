@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import renegade.opt.OptConfig
-import renegade.supervised.classification.Classifier
 import java.util.zip.GZIPInputStream
 
 /**
@@ -19,7 +18,7 @@ fun main() {
 
     val data = loadIrisDataset()
 
-    val classifier = Classifier(OptConfig(), data, getBuilders(data))
+    // TODO: Try with waypoint learner
 
 
 }
@@ -70,3 +69,4 @@ private infix fun ClosedRange<Double>.step(step: Double): Iterable<Double> {
     }
     return sequence.asIterable()
 }
+
