@@ -2,11 +2,19 @@ package renegade
 
 import mu.KotlinLogging
 import renegade.MetricSpace.Parameters.learningRate
+import renegade.MetricSpace.Parameters.maxIterations
 import renegade.MetricSpace.Parameters.maxModelCount
 import renegade.MetricSpace.Parameters.maxSamples
-import renegade.distanceModelBuilder.*
-import renegade.opt.*
-import renegade.util.*
+import renegade.distanceModelBuilder.DistanceModel
+import renegade.distanceModelBuilder.DistanceModelBuilder
+import renegade.distanceModelBuilder.ModelRefiner
+import renegade.distanceModelBuilder.estimate
+import renegade.opt.OptConfig
+import renegade.opt.ValueListParameter
+import renegade.util.InputPairSampler
+import renegade.util.TrainTest
+import renegade.util.Two
+import renegade.util.splitTrainTest
 import java.io.Serializable
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -26,12 +34,12 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         val cfg : OptConfig,
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
         val trainingData: List<Pair<InputType, OutputType>>, // TODO: We shouldn't have to serialize this
-        val maxIterations: Int? = null,
         val outputDistance: (OutputType, OutputType) -> Distance
 ) : (Two<InputType>) -> Double, Serializable {
 
-    private object Parameters {
-        val maxSamples = ValueListParameter("maxSamples", 1_000_000, 1_000, 10_000, 100_000, 10_000_000, 100_000_000)
+    object Parameters {
+        val maxIterations = ValueListParameter<Int>("maxIteratons", 1, 200)
+        val maxSamples = ValueListParameter("maxSamples", 1_000_000)
         val learningRate = ValueListParameter("learningRate", 0.01, 0.1, 0.05,  0.2, 0.5, 1.0)
         val maxModelCount = ValueListParameter<Int>("maxModelCount", 64, 4, 8, 16, 32, 128, 256, 1024, 10240)
     }
@@ -53,7 +61,15 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         require(modelBuilders.isNotEmpty()) { "Must have at least one modelBuilders regressor" }
         require(trainingData.isNotEmpty()) { "Must have at least one training instance" }
 
-        val distancePairs = InputPairSampler(trainingData, outputDistance).sample(cfg[maxSamples]).asSequence().splitTrainTest(2)
+        val splitData = trainingData.splitTrainTest(0.5)
+
+        val trainSample = InputPairSampler(splitData.train, outputDistance).sample(cfg[maxSamples])
+
+        val testSample = InputPairSampler(splitData.test, outputDistance).sample(cfg[maxSamples])
+
+        val distancePairs = TrainTest(trainSample, testSample)
+
+        logger.info("Split training data of ${trainingData.size} into ${distancePairs.train.size} training and ${distancePairs.test.size} testing pairs.")
 
         distancePairs.train.map {it.dist}.average().let {averageDistance ->
             logger.info("Average distance of training distance pairs is $averageDistance")
@@ -132,7 +148,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
     }
 
     private fun shouldTerminate(iteration: Int, rmses: ArrayList<Double>): Boolean {
-        return if (maxIterations != null && iteration == maxIterations) {
+        return if (iteration == cfg[maxIterations]) {
             logger.info("Terminating refinement because we've reached maxIterations")
             true
         } else {

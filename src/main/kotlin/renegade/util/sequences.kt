@@ -2,7 +2,7 @@ package renegade.util
 
 import mu.KotlinLogging
 import java.util.*
-import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 private val logger = KotlinLogging.logger {}
 
@@ -43,13 +43,12 @@ fun <K> Sequence<K>.lookAheadLowest(lookAhead: Int = 5, minimum : Int = 0, value
 
 class TrainTest<E>(val train: List<E>, val test: List<E>)
 
-fun <E : Any> Sequence<E>.splitTrainTest(testEvery: Int): TrainTest<E> {
-    require(testEvery > 0)
+fun <E : Any> List<E>.splitTrainTest(trainProportion: Double = 0.9): TrainTest<E> {
 
-    // NOTE: It's important to groupBy the hashcode of the value of the training entry, this prevents
-    //       accidental overlap
-    val grouped = this.withIndex().groupBy { (it.value.hashCode().absoluteValue) % testEvery == 0 }.mapValues { it.value.map { it.value } }
-    return TrainTest(grouped[false] ?: emptyList(), grouped[true] ?: emptyList())
+    val shuffled = this.shuffled()
+
+    val separationIndex = (trainProportion * this.size).roundToInt()
+    return TrainTest(shuffled.subList(0, separationIndex), shuffled.subList(separationIndex, shuffled.size))
 }
 
 fun <K> Sequence<K>.toPairSequence() : Sequence<Pair<K, K>> {

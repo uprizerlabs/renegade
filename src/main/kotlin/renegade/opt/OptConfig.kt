@@ -2,13 +2,15 @@ package renegade.opt
 
 import com.github.salomonbrys.kotson.set
 import com.google.gson.*
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonWriter
 import java.io.Serializable
 import java.lang.reflect.Type
 import java.util.concurrent.ConcurrentHashMap
 
-class OptConfig : Serializable {
+enum class CreationStrategy {
+    dafault, randomSample
+}
+
+class OptConfig(val creationStrategy: CreationStrategy = CreationStrategy.dafault) : Serializable {
 
     val options = ConcurrentHashMap<String, Any>()
 
@@ -23,9 +25,15 @@ class OptConfig : Serializable {
     operator fun <T : Any> get(param: OptimizableParameter<T>): T {
         parameters?.set(param.label, param)
         return (options[param.label] as T?) ?: run {
-            param.randomSample().let { r ->
-                options[param.label] = r
-                r
+            when (creationStrategy) {
+                CreationStrategy.dafault -> param.default.let { r ->
+                    options[param.label] = r
+                    r
+                }
+                CreationStrategy.randomSample -> param.randomSample().let { r ->
+                    options[param.label] = r
+                    r
+                }
             }
         }
     }
