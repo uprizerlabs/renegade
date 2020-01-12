@@ -9,6 +9,8 @@ import renegade.distanceModelBuilder.DistanceModel
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.ModelRefiner
 import renegade.distanceModelBuilder.estimate
+import renegade.opt.DoubleRangeParameter
+import renegade.opt.IntRangeParameter
 import renegade.opt.OptConfig
 import renegade.opt.ValueListParameter
 import renegade.util.InputPairSampler
@@ -38,10 +40,10 @@ class MetricSpace<InputType : Any, OutputType : Any>(
 ) : (Two<InputType>) -> Double, Serializable {
 
     object Parameters {
-        val maxIterations = ValueListParameter<Int>("maxIteratons", 1, 200)
-        val maxSamples = ValueListParameter("maxSamples", 1_000_000)
-        val learningRate = ValueListParameter("learningRate", 0.01, 0.1, 0.05,  0.2, 0.5, 1.0)
-        val maxModelCount = ValueListParameter<Int>("maxModelCount", 64, 4, 8, 16, 32, 128, 256, 1024, 10240)
+        val maxIterations = IntRangeParameter("maxIteratons", 1 .. 200, Int.MAX_VALUE)
+        val maxSamples = IntRangeParameter("maxSamples", 1_000 .. 1_000_000, 500_000)
+        val learningRate = DoubleRangeParameter("learningRate", 0.001 to 0.1, 0.01)
+        val maxModelCount = IntRangeParameter("maxModelCount", 64 .. 10240, 10240)
     }
 
     override fun invoke(inputs: Two<InputType>): Double = estimateDistance(inputs)

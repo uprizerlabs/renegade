@@ -3,7 +3,6 @@ package renegade.datasets.iris
 import mu.KotlinLogging
 import renegade.distanceModelBuilder.DistanceModelBuilder
 import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
-import renegade.opt.OptConfig
 import java.util.zip.GZIPInputStream
 
 /**
@@ -38,7 +37,7 @@ fun loadIrisDataset(): List<Pair<IrisMeasurements, IrisSpecies>> {
     }.toList()
 }
 
-private fun getBuilders(data: List<Pair<IrisMeasurements, IrisSpecies>>): ArrayList<DistanceModelBuilder<IrisMeasurements>> {
+fun createIrisBuilders(data: List<Pair<IrisMeasurements, IrisSpecies>>): ArrayList<DistanceModelBuilder<IrisMeasurements>> {
     val builders = ArrayList<DistanceModelBuilder<IrisMeasurements>>()
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalLength)
     builders += DoubleDistanceModelBuilder().map(IrisMeasurements::petalWidth)

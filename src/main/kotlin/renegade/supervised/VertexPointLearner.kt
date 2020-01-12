@@ -45,7 +45,7 @@ class VertexPointLearner<InputType : Any, OutputType : Any, PredictionType : Any
             data class Best(val insetSize: Int, val rmse: Double)
 
             var bestSoFar: Best? = null
-            for (testInsetSize in 2..(sampleSize / 2)) {
+            for (testInsetSize in 1..(sampleSize / 2)) {
                 val sw = Stopwatch.createStarted()
                 val rmse = samples.map { (sampleInput, sampleOutput) ->
                     val nearest = vpIndex.getNearestNeighbors((sampleInput to null), testInsetSize)
@@ -60,7 +60,7 @@ class VertexPointLearner<InputType : Any, OutputType : Any, PredictionType : Any
                     bestSoFar = Best(testInsetSize, rmse)
                 }
                 println("$testInsetSize\t$rmse\t${sw.elapsed(TimeUnit.MILLISECONDS).toDouble() / 1000.0}")
-                if (testInsetSize > bestSoFar.insetSize + 10) {
+                if (testInsetSize > bestSoFar.insetSize + 5) {
                     break
                 }
             }

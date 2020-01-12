@@ -52,32 +52,42 @@ class WaypointLearner<InputType : Any, OutputType : Any, PredictionType : Any>(
             }
         }
 
-        val bestPair = initialPairs.take(100).maxBy { it.second }!!.first
+        val bestPair = initialPairs.take(100).maxBy { it.second }
 
-        val waypoints = ArrayList<InputType>()
+        if (bestPair == null) {
+            return emptyList()
+        } else {
 
-        waypoints += bestPair.first
-        waypoints += bestPair.second
-        while (waypoints.size < numWaypoints) {
+            logger.info("Initial waypoint distance: ${bestPair!!.second}")
 
-            data class Best(val i: InputType, val dist: Double)
+            val waypoints = ArrayList<InputType>()
 
-            var best: Best? = null
-            for (t in 0..cfg[waypointSearchLimit]) {
-                logger.info("Searcing for waypoint $t")
-                val candidate = inputData.random()
-                val totalDistance = waypoints.map { metric.estimateDistance(Two(it, candidate)).sqr }.sum().sqrt
-                if ((best == null) || (best.dist > totalDistance)) {
-                    best = Best(candidate, totalDistance)
-                    logger.info("New best candidate: $best")
+            waypoints += bestPair!!.first.first
+            waypoints += bestPair!!.first.second
+            while (waypoints.size < numWaypoints) {
+
+                data class Best(val i: InputType, val dist: Double)
+
+                var best: Best? = null
+                for (t in 0..cfg[waypointSearchLimit]) {
+                    val candidate = inputData.random()
+                    if (candidate !in waypoints) {
+                        val totalDistance = waypoints.map { metric.estimateDistance(Two(it, candidate)).sqr }.sum().sqrt
+                        if ((best == null) || (best.dist > totalDistance)) {
+                            best = Best(candidate, totalDistance)
+                        }
+                    }
+                }
+                if (best != null) {
+                    logger.info("Waypoint ${waypoints.size}: $best")
+                    waypoints += best.i
                 }
             }
-            if (best != null) {
-                waypoints += best.i
-            }
-        }
 
-        return waypoints
+            logger.info("Waypoints: $waypoints")
+
+            return waypoints
+        }
     }
 }
 

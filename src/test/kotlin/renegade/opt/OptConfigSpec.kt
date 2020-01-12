@@ -1,6 +1,5 @@
 package renegade.opt
 
-import com.github.salomonbrys.kotson.registerTypeAdapter
 import com.google.gson.GsonBuilder
 import io.kotlintest.matchers.plusOrMinus
 import io.kotlintest.matchers.shouldBe
@@ -9,12 +8,12 @@ import io.kotlintest.specs.FreeSpec
 class OptConfigSpec : FreeSpec() {
     init {
         "Test Gson Serialization" - {
-            val gson = Optimizer.gson
+            val gson = GsonBuilder().create()
             val optConfig = OptConfig()
             val p1 = DoubleRangeParameter("p1", 0.0 to 1.0, 0.0)
             val p2 = ValueListParameter("p2", C1.values().toList())
-            optConfig[p1] = 1.5
-            optConfig[p2] = C1.A
+            optConfig.set(p1, 1.5)
+            optConfig.set(p2, C1.A)
             "serialize" {
                 optConfig.parameters?.get("p1") shouldBe p1
                 optConfig.parameters?.get("p2") shouldBe p2

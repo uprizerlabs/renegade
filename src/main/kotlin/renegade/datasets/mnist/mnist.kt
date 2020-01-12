@@ -9,7 +9,6 @@ import renegade.supervised.Schemas
 import renegade.supervised.VertexPointLearner
 import renegade.supervised.WaypointLearner
 import java.util.zip.GZIPInputStream
-import kotlin.math.abs
 
 private val logger = KotlinLogging.logger {}
 
@@ -21,7 +20,7 @@ class MNist {
 
     init {
         logger.info("Loading training data")
-        val trainingData: List<Pair<List<Double>, Int>> = loadMnistDataset("mnist_train.csv.gz")
+        val trainingData: List<Pair<List<Double>, Int>> = loadMnistDataset()
                 .map { Pair(it.first.map { it.toDouble() }, it.second) }
         logger.info("Loaded ${trainingData.size} instances of training data.")
 
@@ -32,11 +31,11 @@ class MNist {
         logger.info("Building classifier")
 
         val cfg = OptConfig()
-        cfg[VertexPointLearner.Parameters.multithreadDistance] = false
-        cfg[MetricSpace.Parameters.maxSamples] = 10_000
-        cfg[MetricSpace.Parameters.maxModelCount] = Integer.MAX_VALUE
-        cfg[MetricSpace.Parameters.maxIterations] = 10
-        cfg[VertexPointLearner.Parameters.sampleSize] = 1000
+        cfg.set(VertexPointLearner.Parameters.multithreadDistance, false)
+        cfg.set(MetricSpace.Parameters.maxSamples, 10_000)
+        cfg.set(MetricSpace.Parameters.maxModelCount, Integer.MAX_VALUE)
+        cfg.set(MetricSpace.Parameters.maxIterations, 10)
+        cfg.set(VertexPointLearner.Parameters.sampleSize, 1000)
 
         val schema = Schemas.ClassifierSchema<List<Double>, Int>()
         val waypointLearner = WaypointLearner(cfg, schema)
@@ -61,8 +60,8 @@ fun createMnistBuilders(trainingData: List<Pair<List<Double>, Int>>): ArrayList<
     return builders
 }
 
-fun loadMnistDataset(name: String): List<Pair<IntArray, Int>> {
-    return GZIPInputStream(MNist::class.java.getResourceAsStream(name)).bufferedReader().useLines {
+fun loadMnistDataset(): List<Pair<IntArray, Int>> {
+    return GZIPInputStream(MNist::class.java.getResourceAsStream("mnist_train.csv.gz")).bufferedReader().useLines {
         it.map { line ->
             val columns = line.split(',')
             val label = columns[0].toInt()

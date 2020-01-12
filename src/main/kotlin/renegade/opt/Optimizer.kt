@@ -1,70 +1,93 @@
 package renegade.opt
 
-import com.fatboyindustrial.gsonjavatime.Converters
 import java.nio.file.Files
 import java.nio.file.Path
-import java.time.Instant
-import com.github.salomonbrys.kotson.*
 import com.google.gson.*
-import renegade.util.KClassTypeAdaptor
-import kotlin.reflect.KClass
+import java.io.PrintStream
+import java.nio.file.StandardOpenOption
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
-class Optimizer(
-        val logFile : Path,
-        val goal : Goal,
-        toOptimize : (OptConfig) -> Double,
-        randomSearchThreshold : Int = 20
-) {
-    companion object {
-        val gson = Converters.registerInstant(GsonBuilder())
-                .registerTypeAdapter(OptConfig::class.java, OptConfigTypeAdaptor())
-                .registerTypeAdapter(KClass::class.java, KClassTypeAdaptor())
-                .create()
-    }
+class Optimizer(private val toLoss: (Score) -> Loss, private val log: OptimizerLog, private val isDone: (Score, Int) -> Boolean) {
 
-    @Volatile
-    private var hasWrittenParameters = false
+    fun optimize(func: (OptConfig) -> Score) : OptConfig {
 
-    private val log = Files.readAllLines(logFile).map {
-        gson.fromJson<OptimizationRun>(it)
-    }.toMutableList()
+        var count = 0
 
-    @Volatile
-    private var parameters = log.mapNotNull { it.config.parameters }.lastOrNull()
+        do {
+            val parametersByLabel = HashMap<String, OptimizableParameter<*>>()
+            val valuesByParameter = HashMap<String, MutableMap<Any, MutableList<Loss>>>()
 
-    init {
-
-    }
-
-    private fun generateOptConfig() : OptConfig {
-        val cfg = OptConfig()
-        parameters.let { param ->
-            if (param != null) {
-                for (p in param.values) {
-                    cfg.options[p.label] = p.randomSample()
+            for (l in log.read()) {
+                for ((label, value) in l.cfg.options) {
+                    valuesByParameter.computeIfAbsent(label) { HashMap() }.computeIfAbsent(value) { ArrayList() }.add(toLoss(l.score))
+                    parametersByLabel.putIfAbsent(label, l.cfg.parameters?.get(label) ?: error("Can't find $label"))
                 }
             }
-        }
-        return cfg
-    }
 
-    private fun logRun(or : OptimizationRun) {
-        or.config.parameters.let { p ->
-            if (p != null) {
-                parameters = p
+            val cfg = OptConfig()
+
+            for (knownParameter in parametersByLabel.values) {
+                val history = valuesByParameter[knownParameter.label]
+                if (history != null) {
+                    val v = selectNext(knownParameter, history)
+                    cfg[knownParameter] = v
+                }
             }
-        }
-        if (hasWrittenParameters) {
-            or.config.parameters = null
-        }
-        logFile.toFile().appendText(gson.toJson(or)+"\n")
-        log += or
-        hasWrittenParameters = true
+
+            val score = func(cfg)
+
+            log.write(OptScore(System.currentTimeMillis(), cfg, score))
+
+        } while (!isDone(score, count++))
+
+        return log.read().minBy { toLoss(it.score) }!!.cfg
     }
 
-    enum class Goal {
-        MAXIMIZE, MINIMIZE
-    }
-
-    data class OptimizationRun(val time : Instant, val config : OptConfig, val score : Double)
 }
+
+interface OptimizerLog {
+    fun write(optScore: OptScore)
+
+    fun read(): List<OptScore>
+}
+
+class MemoryOptimizerLog : OptimizerLog {
+    private val logList = CopyOnWriteArrayList<OptScore>()
+
+    override fun write(optScore: OptScore) {
+        logList += optScore
+    }
+
+    override fun read(): List<OptScore> = logList
+
+}
+
+class FileOptimizerLog(private val path: Path) : OptimizerLog {
+
+    private val gson = GsonBuilder().registerTypeAdapter(OptConfig::class.java, OptConfigTypeAdaptor()).create()
+
+    override fun write(optScore: OptScore) {
+        PrintStream(Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)).use { ps ->
+            ps.println(gson.toJson(optScore))
+        }
+    }
+
+    override fun read(): List<OptScore>{
+        return if (Files.exists(path)) {
+            Files.readAllLines(path)
+                    .map { gson.fromJson(it, OptScore::class.java) }
+        } else {
+            emptyList()
+        }
+    }
+
+}
+
+class Score : MutableMap<String, Double> by ConcurrentHashMap() {
+    override fun toString(): String {
+        return "Score("+this.entries.map {  "${it.key} = ${it.value}" }.joinToString(separator = ",")+")"
+    }
+}
+
+data class OptScore(val time : Long, val cfg: OptConfig, val score: Score)

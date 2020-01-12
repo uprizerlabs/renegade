@@ -16,7 +16,7 @@ class OptConfig(val creationStrategy: CreationStrategy = CreationStrategy.dafaul
 
     @Volatile var parameters : ConcurrentHashMap<String, OptimizableParameter<*>>? = ConcurrentHashMap()
 
-    operator fun <T : Any> set(param: OptimizableParameter<T>, v: T) {
+    operator fun <T : Any> set(param: OptimizableParameter<*>, v: T) {
         parameters?.set(param.label, param)
         options[param.label] = v as Any
     }
