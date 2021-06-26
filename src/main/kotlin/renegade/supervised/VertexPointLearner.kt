@@ -85,22 +85,16 @@ class VertexPointModel<InputType : Any, OutputType : Any, PredictionType : Any>(
         private val insetSize: Int
 ) : LearnedModel<InputType, OutputType, PredictionType> {
     override fun predict(input: InputType): PredictionType {
-        val predictions = vpTree.getNearestNeighbors((input to null), insetSize)
-                .filterNot { it.first == input }.let {
-                    if (cfg[VertexPointLearner.Parameters.multithreadDistance]) {
-                        it.parallelStream()
-                    } else {
-                        it.stream()
-                    }.map { (i, o) ->
+        val predictions = vpTree.getNearestNeighbors((input to null), insetSize).asSequence()
+                .filterNot { it.first == input }
+                .mapNotNull { (i, o) ->
                         if (o != null) {
-                            val distance =
-                                    ItemWithDistance(o, metric.estimateDistance(Two(input, i)))
+                            ItemWithDistance(o, metric.estimateDistance(Two(input, i)))
                         } else {
                             null
                         }
-                    }
-                }
-                .collect(Collectors.toList()) as List<ItemWithDistance<OutputType>>
+                    }.toList()
+
         val aggregated = schema.predictionAggregator(predictions)
         return aggregated
     }
