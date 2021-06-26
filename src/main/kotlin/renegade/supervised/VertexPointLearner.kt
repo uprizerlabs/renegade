@@ -5,13 +5,10 @@ import com.google.common.base.Stopwatch
 import mu.KotlinLogging
 import renegade.MetricSpace
 import renegade.aggregators.ItemWithDistance
-import renegade.opt.IntRangeParameter
-import renegade.opt.OptConfig
-import renegade.opt.ValueListParameter
+import renegade.opt.*
 import renegade.supervised.VertexPointLearner.Parameters.sampleSize
 import renegade.util.Two
-import renegade.util.math.sqr
-import renegade.util.math.sqrt
+import renegade.util.math.*
 import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 import kotlin.math.min
@@ -73,10 +70,8 @@ class VertexPointLearner<InputType : Any, OutputType : Any, PredictionType : Any
 
 
     object Parameters {
-        val distanceCacheSize = IntRangeParameter("distanceCacheSize", 1_000..1_000_000, 1_000_000)
         val sampleSize = IntRangeParameter("sampleSize", 100_000..1_000_000, 60_000)
         val multithreadDistance = ValueListParameter("multithreadDistance", true, false)
-        val insetSize = IntRangeParameter("insetSize", 5..1000, 20)
     }
 
 
