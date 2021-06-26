@@ -2,6 +2,7 @@ package renegade
 
 import mu.KotlinLogging
 import renegade.MetricSpace.Parameters.learningRate
+import renegade.MetricSpace.Parameters.maxIterations
 import renegade.MetricSpace.Parameters.maxModelCount
 import renegade.MetricSpace.Parameters.maxSamples
 import renegade.distanceModelBuilder.DistanceModel
@@ -33,11 +34,11 @@ class MetricSpace<InputType : Any, OutputType : Any>(
         val cfg : OptConfig,
         val modelBuilders: List<DistanceModelBuilder<InputType>>,
         val trainingData: List<Pair<InputType, OutputType>>, // TODO: We shouldn't have to serialize this
-        val maxIterations: Int? = null,
         val outputDistance: (OutputType, OutputType) -> Distance
 ) : (Two<InputType>) -> Double, Serializable {
 
     object Parameters {
+        val maxIterations = ValueListParameter<Int>("maxIteratons", 1, 200)
         val maxSamples = ValueListParameter("maxSamples", 1_000_000)
         val learningRate = ValueListParameter("learningRate", 0.01, 0.1, 0.05,  0.2, 0.5, 1.0)
         val maxModelCount = ValueListParameter<Int>("maxModelCount", 64, 4, 8, 16, 32, 128, 256, 1024, 10240)
@@ -147,7 +148,7 @@ class MetricSpace<InputType : Any, OutputType : Any>(
     }
 
     private fun shouldTerminate(iteration: Int, rmses: ArrayList<Double>): Boolean {
-        return if (maxIterations != null && iteration == maxIterations) {
+        return if (iteration == cfg[maxIterations]) {
             logger.info("Terminating refinement because we've reached maxIterations")
             true
         } else {

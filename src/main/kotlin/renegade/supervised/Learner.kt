@@ -29,6 +29,6 @@ interface Predictor<InputType : Any, OutputType : Any, PredictionType : Any> {
     fun search(input : InputType) : PredictionType
 }
 
-class DataSchema<InputType : Any, OutputType : Any, PredictionType : Any>(val outputDistance: (OutputType, OutputType) -> Distance,
+open class DataSchema<InputType : Any, OutputType : Any, PredictionType : Any>(val outputDistance: (OutputType, OutputType) -> Distance,
                                                                            val predictionAggregator: (Collection<ItemWithDistance<OutputType>>) -> PredictionType,
                                                                            val predictionError: (OutputType, PredictionType) -> Double)

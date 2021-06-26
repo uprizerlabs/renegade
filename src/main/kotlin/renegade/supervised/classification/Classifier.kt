@@ -1,47 +1,29 @@
 package renegade.supervised.classification
 
 import mu.KotlinLogging
+import renegade.MetricSpace
 import renegade.aggregators.ItemWithDistance
 import renegade.distanceModelBuilder.DistanceModelBuilder
+import renegade.distanceModelBuilder.inputTypes.metric.DoubleDistanceModelBuilder
 import renegade.opt.OptConfig
+import renegade.supervised.Schemas
 import renegade.supervised.VertexPointLearner
+import renegade.supervised.WaypointLearner
 
 private val logger = KotlinLogging.logger {}
 
-class Classifier<InputType : Any, OutputType : Any>(
-        cfg: OptConfig,
-        trainingData: List<Pair<InputType, OutputType>>,
-        distanceModelBuilders: ArrayList<DistanceModelBuilder<InputType>>
-) {
+fun main() {
+    val schema = Schemas.RegressionSchema<List<Double>>(false)
 
-    val vertexPointLearner: VertexPointLearner<InputType, OutputType, Prediction<OutputType>>
+/*    val data = loadM
 
-    init {
-        vertexPointLearner = VertexPointLearner(
-                cfg = cfg,
-                trainingData = trainingData,
-                distanceModelBuilders = distanceModelBuilders,
-                outputDistance = { a: OutputType, b: OutputType -> if (a == b) 0.0 else 1.0 },
-                predictionAggregator = this::predictionAggregator,
-                predictionError = { actual: OutputType, prediction -> 1.0 - prediction[actual] }
-        )
-        vertexPointLearner.insetSizeOverride // TODO: This should be done in the constructor
-    }
+    val wl = WaypointLearner(OptConfig(), schema)
 
-    private fun predictionAggregator(items: Collection<ItemWithDistance<OutputType>>): Prediction<OutputType> {
-        val itemCount = items.size
-        return Prediction(
-                probabilities = items.groupingBy { it.item }
-                        .eachCount()
-                        .mapValues { it.value.toDouble() / itemCount },
-                sampleSize = itemCount
-        )
-    }
+    val dmb = listOf<DistanceModelBuilder<List<Double>>>(DoubleDistanceModelBuilder().map {it[0]})
 
-    data class Prediction<OutputType>(private val probabilities: Map<OutputType, Double>, val sampleSize: Int) {
-        operator fun get(output: OutputType): Double = probabilities.getOrDefault(output, 0.0)
+    val metric = MetricSpace(OptConfig(), dmb, listOf(), null, schema.outputDistance)
 
-        val mostProbable: OutputType? by lazy { probabilities.entries.maxBy { it.value }?.key }
-    }
+    val model = wl.learn(metric, listOf())
+*/
 
 }
