@@ -49,7 +49,6 @@ repositories {
     jcenter()
     maven {
         url "https://jitpack.io"
-        credentials { username authToken }
     }
     maven {url "https://dl.bintray.com/kotlin/kotlin-eap"}
 }
