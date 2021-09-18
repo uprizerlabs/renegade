@@ -16,6 +16,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
+/*
 
 fun main() {
     val log = FileOptimizerLog(Paths.get("classifier-opt-2.jsonp"))
@@ -75,3 +76,4 @@ fun main() {
 enum class LearnerType {
     WAYPOINT, VERTEX_POINT
 }
+        */

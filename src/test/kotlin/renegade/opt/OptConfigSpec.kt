@@ -1,12 +1,9 @@
 package renegade.opt
-
+/*
 import com.google.gson.GsonBuilder
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.shouldBe
-/*
-
-DISABLED because this needs to be migrated away from Gson
 
 class OptConfigSpec : FreeSpec() {
     init {
@@ -37,4 +34,4 @@ enum class C1 {
     A, B
 }
 
- */
+*/

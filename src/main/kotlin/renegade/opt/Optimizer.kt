@@ -2,7 +2,6 @@ package renegade.opt
 
 import java.nio.file.Files
 import java.nio.file.Path
-import com.google.gson.*
 import java.io.PrintStream
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.ConcurrentHashMap
@@ -62,7 +61,7 @@ class MemoryOptimizerLog : OptimizerLog {
     override fun read(): List<OptScore> = logList
 
 }
-
+/*
 class FileOptimizerLog(private val path: Path) : OptimizerLog {
 
     private val gson = GsonBuilder().registerTypeAdapter(OptConfig::class.java, OptConfigTypeAdaptor()).create()
@@ -83,6 +82,8 @@ class FileOptimizerLog(private val path: Path) : OptimizerLog {
     }
 
 }
+
+ */
 
 class Score : MutableMap<String, Double> by ConcurrentHashMap() {
     override fun toString(): String {

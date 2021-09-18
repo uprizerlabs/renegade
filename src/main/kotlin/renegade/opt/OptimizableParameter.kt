@@ -1,8 +1,10 @@
 package renegade.opt
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import mu.KotlinLogging
 import renegade.util.math.random
-import java.io.Serializable
+import renegade.util.serializers.IntRangeSerializer
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.reflect.KClass
@@ -11,7 +13,7 @@ private val logger = KotlinLogging.logger {}
 
 // private val usedLabels = ConcurrentSkipListSet<String>()
 
-abstract class OptimizableParameter<T : Any>() : Serializable {
+abstract class OptimizableParameter<T : Any>() {
 
     abstract val type : KClass<T>
 
