@@ -52,7 +52,7 @@ class WaypointLearner<InputType : Any, OutputType : Any, PredictionType : Any>(
             }
         }
 
-        val bestPair = initialPairs.take(100).maxBy { it.second }
+        val bestPair = initialPairs.take(100).maxByOrNull { it.second }
 
         if (bestPair == null) {
             return emptyList()

@@ -11,7 +11,7 @@ class ClassificationAggregator<ItemType : Any> : OutputAggregator<ItemType, Clas
         val cc = ClassificationCounter<ItemType>()
         if (population != null) {
             val pm = population.toProbabilityMap()
-            val minProb  = pm.values.min() ?: throw RuntimeException("population is empty")
+            val minProb  = pm.values.minOrNull() ?: throw RuntimeException("population is empty")
             pm.forEach { item, count -> cc.addWithCount(item, count * POPULATION_WEIGHT / minProb) }
         }
         return cc

@@ -78,9 +78,9 @@ class ValueListParameterSelectionStrategy : ParameterSelectionStrategy<Any, Valu
     override fun select(param: ValueListParameter<Any>, previous: Map<Any, List<Loss>>): Any {
 
         val rarestValue: Pair<Any, Int> = param
-                .values
-                .map { p -> p to previous.getOrElse(p, { emptyList() }).size }
-                .minBy { it.second } ?: error("Couldn't find rarestValue")
+            .values
+            .map { p -> p to previous.getOrElse(p, { emptyList() }).size }
+            .minByOrNull { it.second } ?: error("Couldn't find rarestValue")
 
         val minScoresPerValue = 2
         return if (rarestValue.second < minScoresPerValue) {

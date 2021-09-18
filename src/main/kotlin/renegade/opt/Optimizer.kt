@@ -41,7 +41,7 @@ class Optimizer(private val toLoss: (Score) -> Loss, private val log: OptimizerL
 
         } while (!isDone(score, count++))
 
-        return log.read().minBy { toLoss(it.score) }!!.cfg
+        return log.read().minByOrNull { toLoss(it.score) }!!.cfg
     }
 
 }
