@@ -1,8 +1,8 @@
 package renegade.util.math.stats
 
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.shouldBe
 import renegade.approx
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.specs.FreeSpec
 
 class BetaDistributionSpec : FreeSpec() {
     init {

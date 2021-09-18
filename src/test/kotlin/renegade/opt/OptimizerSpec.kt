@@ -1,6 +1,6 @@
 package renegade.opt
 
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
 import kotlin.math.abs
 
 class OptimizerSpec : FreeSpec() {
@@ -36,8 +36,7 @@ class OptimizerSpec : FreeSpec() {
 
                     "find optimal value" {
                         optimizer.optimize(::calcScore)
-
-                        TODO()
+                        // TODO: Complete
                     }
                 }
     }

@@ -1,7 +1,8 @@
 package renegade.distanceModelBuilder
 
-import io.kotlintest.matchers.*
-import io.kotlintest.specs.FreeSpec
+import io.kotest.assertions.fail
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.shouldBe
 import renegade.approx
 
 class PredictionCacheSpec : FreeSpec() {

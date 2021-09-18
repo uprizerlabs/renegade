@@ -1,8 +1,8 @@
 package renegade.util
 
-import io.kotlintest.matchers.beLessThanOrEqualTo
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.comparables.beLessThanOrEqualTo
+import io.kotest.matchers.shouldBe
 import java.util.*
 import kotlin.collections.ArrayList
 

@@ -1,7 +1,8 @@
 package renegade
 
-import io.kotlintest.matchers.*
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.comparables.gt
+import io.kotest.matchers.shouldBe
 import renegade.distanceModelBuilder.*
 import renegade.util.Two
 import renegade.util.math.random

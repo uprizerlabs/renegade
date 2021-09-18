@@ -1,7 +1,7 @@
 package renegade.util
 
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.shouldBe
 import renegade.approx
 import java.util.concurrent.ConcurrentSkipListMap
 

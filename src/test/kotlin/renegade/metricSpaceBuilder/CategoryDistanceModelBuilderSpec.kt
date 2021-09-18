@@ -1,7 +1,8 @@
 package renegade.metricSpaceBuilder
 
-import io.kotlintest.matchers.*
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.shouldBe
 import renegade.distanceModelBuilder.InputDistance
 import renegade.distanceModelBuilder.inputTypes.CategoryDistanceModelBuilder
 import renegade.util.Two

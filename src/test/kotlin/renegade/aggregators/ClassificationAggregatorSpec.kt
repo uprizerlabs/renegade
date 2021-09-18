@@ -1,6 +1,6 @@
 package renegade.aggregators
 
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
 import mu.KotlinLogging
 import renegade.util.math.random
 

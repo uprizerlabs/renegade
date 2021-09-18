@@ -1,6 +1,6 @@
 package renegade.supervised
 
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
 import renegade.datasets.bodyfat.loadBodyfatDataset
 
 class VPPredictorSpec : FreeSpec() {

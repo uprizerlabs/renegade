@@ -1,7 +1,8 @@
 import org.jetbrains.kotlin.ir.backend.js.compile
 
 plugins {
-    kotlin("jvm") version "1.5.30"
+    // Getting compiler errors with 1.5.30 :-(
+    kotlin("jvm") version "1.4.30"
     java
 }
 
@@ -14,8 +15,10 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.30")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.30")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.4.30")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.30")
+
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.30")
     implementation("com.github.sanity:pairAdjacentViolators:1.4.16")
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("org.apache.commons:commons-math3:3.6.1")
@@ -33,21 +36,23 @@ dependencies {
     // Logging
     implementation("io.github.microutils:kotlin-logging:2.0.11")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-    testImplementation("io.kotlintest:kotlintest:2.0.7")
-    
-  //  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.2")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.3")
+
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "15"
     }
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 tasks.withType<JavaCompile> {
-    sourceCompatibility = "16"
-    targetCompatibility = "16"
+    sourceCompatibility = "15"
+    targetCompatibility = "15"
 }
 
 tasks.getByName<Test>("test") {

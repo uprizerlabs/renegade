@@ -1,9 +1,9 @@
 package renegade.distanceModelBuilder
 
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.shouldBe
 import renegade.approx
 import renegade.util.*
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.specs.FreeSpec
 import java.util.*
 
 class ModelRefinerSpec : FreeSpec() {

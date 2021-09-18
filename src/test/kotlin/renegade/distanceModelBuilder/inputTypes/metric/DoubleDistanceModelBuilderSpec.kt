@@ -1,10 +1,11 @@
 package renegade.distanceModelBuilder.inputTypes.metric
 
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.shouldBe
 import renegade.distanceModelBuilder.InputDistance
 import renegade.util.*
 import renegade.util.math.random
-import io.kotlintest.matchers.*
-import io.kotlintest.specs.FreeSpec
 
 /**
  * Created by ian on 7/10/17.

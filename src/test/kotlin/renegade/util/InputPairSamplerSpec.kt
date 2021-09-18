@@ -1,9 +1,9 @@
 package renegade.util
 
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.shouldBe
 import renegade.approx
 import renegade.distanceModelBuilder.InputDistances
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.specs.FreeSpec
 
 /**
  * Created by ian on 7/9/17.

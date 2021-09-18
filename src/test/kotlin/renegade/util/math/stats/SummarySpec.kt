@@ -1,8 +1,9 @@
 package renegade.util.math.stats
 
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.shouldBe
 import renegade.util.math.sqr
-import io.kotlintest.matchers.*
-import io.kotlintest.specs.FreeSpec
 
 class SummarySpec : FreeSpec() {
     init {

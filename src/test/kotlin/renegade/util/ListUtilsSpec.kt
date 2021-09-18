@@ -1,6 +1,6 @@
 package renegade.util
 
-import io.kotlintest.specs.FreeSpec
+import io.kotest.core.spec.style.FreeSpec
 
 /**
  * Created by ian on 7/8/17.

@@ -1,6 +1,6 @@
 package renegade
 
-import io.kotlintest.matchers.plusOrMinus
+import io.kotest.matchers.doubles.plusOrMinus
 import java.util.*
 
 /**

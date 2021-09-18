@@ -1,9 +1,11 @@
 package renegade.aggregators
 
+import io.kotest.core.spec.style.FreeSpec
+import io.kotest.matchers.comparables.beLessThanOrEqualTo
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import renegade.approx
 import renegade.util.math.random
-import io.kotlintest.matchers.*
-import io.kotlintest.specs.FreeSpec
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics
 import java.util.*
 
